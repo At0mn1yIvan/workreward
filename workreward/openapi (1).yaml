@@ -1,0 +1,239 @@
+openapi: 3.0.0
+info:
+  title: workreward
+  version: 1.0.0
+  description: API documentation for the Django project workreward
+paths:
+  /register/:
+    post:
+      tags:
+        - authentication
+      summary: User registration
+      description: Register a new user
+      operationId: registerUser
+      requestBody:
+        description: User registration details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+              required:
+                - username
+                - password
+                - email
+        required: true
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Validation error
+
+  /login/:
+    post:
+      tags:
+        - authentication
+      summary: User login
+      description: Authenticate an existing user
+      operationId: loginUser
+      requestBody:
+        description: User login credentials
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+        required: true
+      responses:
+        '200':
+          description: User authenticated successfully
+        '401':
+          description: Invalid credentials
+
+  /profile/tasks/:
+    get:
+      tags:
+        - tasks
+      summary: List available tasks
+      description: Retrieve a list of tasks available for completion
+      operationId: listTasks
+      responses:
+        '200':
+          description: A list of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    difficulty:
+                      type: string
+                    deadline:
+                      type: string
+                      format: date
+                    status:
+                      type: string
+
+  /profile/tasks/{task_id}/:
+    get:
+      tags:
+        - tasks
+      summary: Get task details
+      description: Retrieve details of a specific task
+      operationId: getTaskDetails
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: The ID of the task
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  comments:
+                    type: array
+                    items:
+                      type: string
+        '404':
+          description: Task not found
+
+  /profile/tasks/{task_id}/report/:
+    post:
+      tags:
+        - tasks
+      summary: Submit task report
+      description: Submit a report for a completed task
+      operationId: submitTaskReport
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: The ID of the task
+          schema:
+            type: integer
+      requestBody:
+        description: Task report details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report:
+                  type: string
+              required:
+                - report
+        required: true
+      responses:
+        '200':
+          description: Report submitted successfully
+        '400':
+          description: Validation error
+        '404':
+          description: Task not found
+
+  /profile/stats/:
+    get:
+      tags:
+        - stats
+      summary: Get task statistics
+      description: Retrieve statistics about completed tasks
+      operationId: getTaskStatistics
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_tasks:
+                    type: integer
+                  completed_tasks:
+                    type: integer
+                  average_completion_time:
+                    type: string
+                    format: duration
+
+  /password-reset/:
+    post:
+      tags:
+        - authentication
+      summary: Request password reset
+      description: Send an email to reset the password
+      operationId: requestPasswordReset
+      requestBody:
+        description: Email address for password reset
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+        required: true
+      responses:
+        '200':
+          description: Password reset email sent
+        '400':
+          description: Validation error
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        difficulty:
+          type: string
+        deadline:
+          type: string
+          format: date
+        status:
+          type: string
