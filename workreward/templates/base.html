@@ -6,15 +6,14 @@
 
     <link
       type="text/css"
-      href="{% static 'markupheart/css/styles.css' %}"
+      href="{% static 'css/global.css' %}"
       rel="stylesheet"
     />
-    {% block script %}
-    {% endblock %}
+    {% block script %} {% endblock %}
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link
       rel="shortcut icon"
-      href="{% static 'markupheart/images/unn_main.ico' %}"
+      href="{% static 'images/workreward_main.ico' %}"
       type="image/x-icon"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,14 +26,14 @@
           <div class="header">
             <ul id="mainmenu" class="mainmenu">
               <li class="logo">
-                <a href="{% url 'home' %}">
+                <a href="{% url 'tasks:home' %}">
                   <div class="logo"></div>
                 </a>
               </li>
               {% for m in mainmenu %}
               <li><a href="{% url m.url_name %}">{{m.title}}</a></li>
               {% endfor %}
-              {% if user.is_authenticated %}
+              {% comment %}  {% if user.is_authenticated %}
               <form
                 id="logoutForm"
                 method="post"
@@ -46,7 +45,8 @@
                   <a
                     href="#"
                     onclick="document.getElementById('logoutForm').submit(); return false;"
-                    >Выйти</a>
+                    >Выйти</a
+                  >
                 </li>
               </form>
               {% else %}
@@ -54,7 +54,7 @@
                 <a href="{% url 'users:login' %}">Войти</a> |
                 <a href="{% url 'users:register' %}">Регистрация</a>
               </li>
-              {% endif %}
+              {% endif %} {% endcomment %}
             </ul>
             <div class="clear"></div>
           </div>
@@ -68,7 +68,6 @@
           >
             <tr>
               <td valign="top" class="content">
-
                 <div class="content-text">
                   {% block content %} {% endblock %}
                 </div>

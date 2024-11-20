@@ -1,7 +1,5 @@
-from django.http import HttpResponseNotFound, HttpResponse
+from django.http import HttpResponseNotFound
 from django.shortcuts import render
-
-# Create your views here.
 
 
 def page_not_found(request, exception):
@@ -9,4 +7,8 @@ def page_not_found(request, exception):
 
 
 def index(request):
-    return HttpResponse("<h1>Стартовая страница сервиса</h1>")
+    return render(request, template_name="tasks/index.html")
+
+
+def tasks(request):
+    return render(request, template_name="tasks/tasks.html")
