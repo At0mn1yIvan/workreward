@@ -1,81 +1,26 @@
 {% load static %}
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html> 
+<html lang="ru"> 
   <head>
-    <title>{{title}}</title>
-
-    <link
-      type="text/css"
-      href="{% static 'css/global.css' %}"
-      rel="stylesheet"
-    />
-    {% block script %} {% endblock %}
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link
-      rel="shortcut icon"
-      href="{% static 'images/workreward_main.ico' %}"
-      type="image/x-icon"
-    />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{% static 'images/fav/fav.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <title>
+      {% block title %}
+      {% endblock %}
+    </title>       
   </head>
   <body>
-    <table class="table-page" border="0" cellpadding="0" cellspacing="0">
-      <tr>
-        <td valign="top">
-          {% block mainmenu %}
-          <div class="header">
-            <ul id="mainmenu" class="mainmenu">
-              <li class="logo">
-                <a href="{% url 'tasks:home' %}">
-                  <div class="logo"></div>
-                </a>
-              </li>
-              {% for m in mainmenu %}
-              <li><a href="{% url m.url_name %}">{{m.title}}</a></li>
-              {% endfor %}
-              {% comment %}  {% if user.is_authenticated %}
-              <form
-                id="logoutForm"
-                method="post"
-                action="{% url 'users:logout' %}"
-              >
-                {% csrf_token %}
-                <li class="last">
-                  <a href="{% url 'users:profile' %}">{{user.username}}</a> |
-                  <a
-                    href="#"
-                    onclick="document.getElementById('logoutForm').submit(); return false;"
-                    >Выйти</a
-                  >
-                </li>
-              </form>
-              {% else %}
-              <li class="last">
-                <a href="{% url 'users:login' %}">Войти</a> |
-                <a href="{% url 'users:register' %}">Регистрация</a>
-              </li>
-              {% endif %} {% endcomment %}
-            </ul>
-            <div class="clear"></div>
-          </div>
-          {% endblock mainmenu %}
-
-          <table
-            class="table-content"
-            border="0"
-            cellpadding="0"
-            cellspacing="0"
-          >
-            <tr>
-              <td valign="top" class="content">
-                <div class="content-text">
-                  {% block content %} {% endblock %}
-                </div>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
+    {% include "includes/header.html" %}
+    <main class="pt-5 my-5">       
+      <div class="container">
+        {% block content %}
+        {% endblock %}
+      </div> 
+    </main>
+    {% include "includes/footer.html" %} 
   </body>
+    <script src="{% static 'js/jquery-3.2.1.slim.min.js'%}"></script>
+    <script src="{% static 'js/bootstrap.min.js'%}"></script>
 </html>
