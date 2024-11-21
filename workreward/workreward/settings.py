@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ru-RU"
 
 TIME_ZONE = "UTC"
 
@@ -130,7 +130,6 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
-
 # TODO: Добавить константу STATIC_ROOT к деплойменту приложения.
 
 # Default primary key field type
@@ -140,5 +139,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = "tasks:home"
 LOGOUT_REDIRECT_URL = "tasks:home"
+LOGIN_URL = "users:login"
 
 AUTH_USER_MODEL = "users.User"

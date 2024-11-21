@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load tasks_filters %}
 {% block title %}
-  Work-Reward. Авторизация
+  {{ title }}
 {% endblock %}
   {% comment %} <h1>Авторизация</h1>
 
@@ -17,13 +17,12 @@
   </form> {% endcomment %}
   {% block content %}
   <div class="container mt-5">
-    <h1 class="text-center mb-4">Авторизация</h1>
+    <h1 class="text-center mb-4">Регистрация</h1>
 
     <form method="post" class="needs-validation" novalidate>
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next }}" />
 
-      <!-- Общие ошибки формы -->
       {% if form.non_field_errors %}
         <div class="alert alert-danger">
           {{ form.non_field_errors }}
@@ -47,7 +46,7 @@
       
       <div class="d-grid">
         <button type="submit" class="btn btn-primary btn-lg fs-3 mt-4">
-          Войти
+          Зарегистрироваться
         </button>
       </div>
     </form>
