@@ -1,7 +1,11 @@
-{% extends "base.html" %}
-{% block title %}
+{% extends "base.html" %} 
+{% block title %} 
   Work-Reward. Завершение регистрации
 {% endblock %}
 {% block content %}
-<p>Вы успешно зарегистрировались на сайте! Для входа в систему необходимо авторизоваться по <a href="{% url 'users:login' %}">ссылке</a></p>
+  <p class="pb-2 mb-0">
+    Вы успешно зарегистрировались на сайте! Для входа в систему необходимо
+    авторизоваться по <a href="{% url 'users:login' %}">ссылке</a>
+  </p>
 {% endblock %}
+ 

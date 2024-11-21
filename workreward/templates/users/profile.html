@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="container mt-5">
-  <h1 class="text-center mb-4">Регистрация</h1>
+  <h1 class="text-center mb-4">Профиль {% if user.is_manager %}(менеджер){% else %}(работник){% endif %}</h1>
 
   <form method="post" class="needs-validation" novalidate>
     {% csrf_token %}
@@ -30,7 +30,7 @@
 
     <div class="d-grid">
       <button type="submit" class="btn btn-primary btn-lg fs-3 mt-4">
-        Зарегистрироваться
+        Сохранить
       </button>
     </div>
   </form>
