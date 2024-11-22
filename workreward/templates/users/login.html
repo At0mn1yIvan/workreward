@@ -3,18 +3,6 @@
 {% block title %}
   Work-Reward. Авторизация
 {% endblock %}
-  {% comment %} <h1>Авторизация</h1>
-
-  <form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ next }}" />
-    <div>{{ form.non_field_errors }}</div>
-    {% for f in form %}
-      <p><label for="{{ f.id_for_label }}">{{ f.label }}</label> {{ f }}</p>
-      <div>{{ f.errors }}</div>
-    {% endfor %}
-    <p><button type="submit">Войти</button></p>
-  </form> {% endcomment %}
   {% block content %}
   <div class="container mt-5">
     <h1 class="text-center mb-4">Авторизация</h1>
@@ -51,5 +39,9 @@
         </button>
       </div>
     </form>
+    <hr>
+    <p class="mt-3">
+      <a href="{% url "users:password_reset" %}" class="fw-bold fs-4 text-decoration-none text-primary">Забыли пароль?</a>
+    </p>
   </div>
 {% endblock %}
