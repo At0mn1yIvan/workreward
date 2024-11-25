@@ -51,7 +51,7 @@ class RegisterUser(CreateView):
 
 
 def register_done(request):
-    context = {"title": "Work-Reward. Успешная регистрация"}
+    context = {"title": "Work-Reward. Завершение регистрации"}
     return render(request, template_name="users/register_done.html", context=context)
 
 
