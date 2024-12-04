@@ -14,6 +14,7 @@ class User(AbstractUser):
         patronymic (CharField): Отчество пользователя. Необязательное поле, может быть пустым.
         is_manager (BooleanField): Флаг, указывающий, является ли пользователь менеджером. По умолчанию False (не менеджер).
     """
+
     first_name = models.CharField(max_length=150, null=False, blank=False)
     last_name = models.CharField(max_length=150, null=False, blank=False)
     patronymic = models.CharField(max_length=150, null=True, blank=True)

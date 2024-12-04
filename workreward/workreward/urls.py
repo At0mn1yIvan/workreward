@@ -16,14 +16,28 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
-
+from django.urls import include, path
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 from tasks.views import page_not_found
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("tasks.urls", namespace="tasks")),
     path("users/", include("users.urls", namespace="users")),
+    path(
+        "api/v1/token/",
+        TokenObtainPairView.as_view(),
+        name="token_obtain_pair",
+    ),
+    path(
+        "api/v1/token/refresh/",
+        TokenRefreshView.as_view(),
+        name="token_refresh",
+    ),
+    # path("api/v1/users/", include("users.api.urls")),
 ]
 
 handler404 = page_not_found
