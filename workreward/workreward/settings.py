@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 import os
 
 from dotenv import load_dotenv
-
+import environ
 load_dotenv()
 
 # Quick-start development settings - unsuitable for production
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "tasks.apps.TasksConfig",
     "users.apps.UsersConfig",
+    "users_api.apps.UsersApiConfig",
 ]
 
 MIDDLEWARE = [
@@ -121,14 +122,11 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
-    "DEFAULT_FILTER_BACKENDS": [
-        "django_filters.rest_framework.DjangoFilterBackend"
-    ],
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
