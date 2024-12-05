@@ -14,13 +14,11 @@ class ManagerCodeSerializer(serializers.ModelSerializer):
 
 class RegisterUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-        style={"input_type": "password"},
         write_only=True,
         required=True,
         validators=[validate_password],
     )
     password2 = serializers.CharField(
-        style={"input_type": "password"},
         write_only=True,
         required=True,
     )
