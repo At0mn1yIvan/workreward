@@ -3,9 +3,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import ManagerCode
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from .renderers import UserJSONRenderer
-from .serializers import ManagerCodeSerializer, RegisterUserSerializer
+from .serializers import (
+    LoginUserSerializer,
+    ManagerCodeSerializer,
+    RegisterUserSerializer,
+)
 
 
 class GetUsersAPIView(viewsets.ModelViewSet):
@@ -24,16 +28,23 @@ class RegisterAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# class LoginAPIView(APIView):
-#     permission_classes = (AllowAny,)
-#     renderer_classes = (UserJSONRenderer,)
-#     serializer_class = LoginUserSerializer
+class LoginAPIView(APIView):
+    permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = LoginUserSerializer
 
-#     def post(self, request):
-#         serializer = self.serializer_class(data=request.data)
-#         serializer.is_valid(raise_exception=True)
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
 
-#         return Response(data=serializer.data, status=status.HTTP_200_OK)
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token)
+            }, status=status.HTTP_200_OK)

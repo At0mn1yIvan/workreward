@@ -20,7 +20,9 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         validators=[validate_password],
     )
     password2 = serializers.CharField(
-        style={"input_type": "password"}, write_only=True, required=True
+        style={"input_type": "password"},
+        write_only=True,
+        required=True,
     )
     manager_code = serializers.CharField(write_only=True, required=False)
 
@@ -106,23 +108,23 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         return user
 
 
-# class LoginUserSerializer(serializers.Serializer):
-#     email = serializers.CharField(max_length=255, read_only=True)
-#     username = serializers.CharField(max_length=255)
-#     password = serializers.CharField(max_length=128, write_only=True)
+class LoginUserSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=255, read_only=True)
+    username = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=128, write_only=True)
 
-#     def validate(self, data):
-#         username = data.get("username", None)
-#         password = data.get("password", None)
+    def validate(self, data):
+        username = data.get("username", None)
+        password = data.get("password", None)
 
-#         user = authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password)
 
-#         if user is None:
-#             raise serializers.ValidationError(
-#                 "Пользователь с введёнными данными не найден"
-#             )
+        if user is None:
+            raise serializers.ValidationError(
+                "Пользователь с введёнными данными не найден"
+            )
 
-#         if not user.is_active:
-#             raise serializers.ValidationError("Пользователь был деактивирован")
+        if not user.is_active:
+            raise serializers.ValidationError("Пользователь был деактивирован")
 
-#         return user
+        return user

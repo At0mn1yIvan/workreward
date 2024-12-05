@@ -1,20 +1,19 @@
 from django.urls import path
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
+from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import GetUsersAPIView, RegisterAPIView
+from .renderers import UserJSONRenderer
+from .views import GetUsersAPIView, LoginAPIView, RegisterAPIView
 
 app_name = "users_api"
-# Для логина использовать login/; Для обновления токена login/refresh/.
 urlpatterns = [
     path(
         "login/",
-        TokenObtainPairView.as_view(),
+        LoginAPIView.as_view(),
         name="token_obtain_pair",
     ),
     path(
         "login/refresh/",
-        TokenRefreshView.as_view(),
+        TokenRefreshView.as_view(renderer_classes=(UserJSONRenderer,)),
         name="token_refresh",
     ),
     path(
@@ -22,11 +21,6 @@ urlpatterns = [
         RegisterAPIView.as_view(),
         name="register",
     ),
-    # path(
-    #     "login/my/",
-    #     LoginAPIView.as_view(),
-    #     name="login",
-    # ),
     path(
         "codeslist/",
         GetUsersAPIView.as_view({'get': 'list'}),
