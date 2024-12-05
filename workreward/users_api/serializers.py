@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 from users.models import ManagerCode
 
@@ -14,7 +16,7 @@ class ManagerCodeSerializer(serializers.ModelSerializer):
 
 class LoginUserSerializer(serializers.Serializer):
     username = serializers.CharField(
-        max_length=255,
+        max_length=150,
         required=True,
     )
     password = serializers.CharField(
@@ -175,3 +177,61 @@ class UserPasswordChangeSerializer(serializers.Serializer):
         user = self.context["request"].user
         user.set_password(self.validated_data["new_password1"])
         user.save()
+
+
+class UserPasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=254, required=True)
+
+    def validate(self, data):
+        user_model = get_user_model()
+        try:
+            user = user_model.objects.get(email=data["email"])
+            data["user_obj"] = user
+        except user_model.DoesNotExist:
+            raise serializers.ValidationError(
+                {"detail": "Пользователя с таким E-mail не существует."}
+            )
+        return data
+
+
+class UserPasswordResetConfirmSerializer(serializers.Serializer):
+    new_password1 = serializers.CharField(
+        required=True,
+        write_only=True,
+        validators=[validate_password],
+    )
+    new_password2 = serializers.CharField(
+        required=True,
+        write_only=True,
+    )
+    uidb64 = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
+
+    def validate(self, data):
+        if data["new_password1"] != data["new_password2"]:
+            raise serializers.ValidationError(
+                {"new_password2": "Пароли не совпадают."}
+            )
+
+        try:
+            user_model = get_user_model()
+            uid = urlsafe_base64_decode(data["uidb64"]).decode()
+            user = user_model.objects.get(pk=uid)
+        except (user_model.DoesNotExist, ValueError, TypeError):
+            raise serializers.ValidationError({"uidb64": "Неверная ссылка."})
+
+        if not default_token_generator.check_token(user, data["token"]):
+            raise serializers.ValidationError(
+                {"token": "Неверный или истёкший токен."}
+            )
+
+        data["user_obj"] = user
+
+        return data
+
+    def save(self):
+        user = self.validated_data["user_obj"]
+        new_password = self.validated_data["new_password1"]
+        user.set_password(new_password)
+        user.save()
+        return user
