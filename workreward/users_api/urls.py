@@ -2,7 +2,13 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .renderers import UserJSONRenderer
-from .views import GetUsersAPIView, LoginAPIView, RegisterAPIView
+from .views import (
+    ChangePasswordAPIView,
+    GetCodesAPIView,
+    LoginAPIView,
+    ProfileAPIView,
+    RegisterAPIView,
+)
 
 app_name = "users_api"
 urlpatterns = [
@@ -22,7 +28,14 @@ urlpatterns = [
         name="register",
     ),
     path(
-        "codeslist/",
-        GetUsersAPIView.as_view({'get': 'list'}),
-        name="list"),
+        "profile/",
+        ProfileAPIView.as_view(),
+        name="profile",
+    ),
+    path(
+        "password-change/",
+        ChangePasswordAPIView.as_view(),
+        name="password_change",
+    ),
+    path("codeslist/", GetCodesAPIView.as_view({"get": "list"}), name="list"),
 ]
