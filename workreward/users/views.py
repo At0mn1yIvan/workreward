@@ -1,11 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, PasswordChangeView
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
-from users.forms import (LoginUserForm, ProfileUserForm, RegisterUserForm,
-                         UserPasswordChangeForm)
+from users.forms import (
+    LoginUserForm,
+    ProfileUserForm,
+    RegisterUserForm,
+    UserPasswordChangeForm,
+)
 
 
 class LoginUser(LoginView):
@@ -47,12 +50,7 @@ class RegisterUser(CreateView):
     form_class = RegisterUserForm
     template_name = "users/register.html"
     extra_context = {"title": "Work-Reward. Регистрация"}
-    success_url = reverse_lazy("users:register_done")
-
-
-def register_done(request):
-    context = {"title": "Work-Reward. Завершение регистрации"}
-    return render(request, template_name="users/register_done.html", context=context)
+    success_url = reverse_lazy("users:login")
 
 
 class ProfileUser(LoginRequiredMixin, UpdateView):
@@ -93,6 +91,7 @@ class UserPasswordChange(PasswordChangeView):
     template_name = "users/password_change_form.html"
     extra_context = {"title": "Work-Reward. Смена пароля"}
     success_url = reverse_lazy("users:password_change_done")
+
 
 # def login_user(request):
 #     if request.method == "POST":

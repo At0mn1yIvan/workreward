@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
     help = "Генерация кодов для менеджеров"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser) -> None:
         parser.add_argument("count", type=int, help="Количество кодов для генерации")
         parser.add_argument(
             "--length",
@@ -42,9 +42,9 @@ class Command(BaseCommand):
             help="Длина каждого кода (по умолчанию 8 символов)",
         )
 
-    def handle(self, *args, **kwargs):
-        count = kwargs["count"]
-        length = kwargs["length"]
+    def handle(self, *args, **kwargs) -> None:
+        count: int = kwargs["count"]
+        length: int = kwargs["length"]
 
         codes = []
         for _ in range(count):
