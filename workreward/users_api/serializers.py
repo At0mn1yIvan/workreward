@@ -36,7 +36,8 @@ class LoginUserSerializer(serializers.Serializer):
                 {"detail": "Пользователь с введёнными данными не найден."}
             )
 
-        return user
+        data["user_obj"] = user
+        return data
 
 
 class RegisterUserSerializer(serializers.ModelSerializer):
