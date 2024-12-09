@@ -1,5 +1,5 @@
+from common.utils import send_email
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -9,15 +9,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import ManagerCode
 
 from .renderers import UserJSONRenderer
-from .serializers import (
-    LoginUserSerializer,
-    ManagerCodeSerializer,
-    ProfileUserSerializer,
-    RegisterUserSerializer,
-    UserPasswordChangeSerializer,
-    UserPasswordResetConfirmSerializer,
-    UserPasswordResetRequestSerializer,
-)
+from .serializers import (LoginUserSerializer, ManagerCodeSerializer,
+                          ProfileUserSerializer, RegisterUserSerializer,
+                          UserPasswordChangeSerializer,
+                          UserPasswordResetConfirmSerializer,
+                          UserPasswordResetRequestSerializer)
 
 
 class GetCodesAPIView(viewsets.ModelViewSet):
@@ -117,21 +113,20 @@ class PasswordResetRequestAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user_obj"]
-        email = serializer._validated_data["email"]
+        email = serializer.validated_data["email"]
 
         uid = urlsafe_base64_encode(str(user.pk).encode())
         token = default_token_generator.make_token(user)
         reset_link = f"{request.build_absolute_uri('/')}password-reset-confirm/{uid}/{token}/"
         try:
-            send_mail(
+            send_email(
                 subject="Запрос на сброс пароля",
                 message=f"Перейдите по ссылке, чтобы сбросить ваш пароль: {reset_link}",
-                from_email="unnarchitecture@yandex.ru",
                 recipient_list=[email],
             )
-        except Exception:
+        except Exception as e:
             return Response(
-                {"detail": "Ошибка при отправке письма. Попробуйте позже."},
+                {"detail": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
         return Response(

@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from django.utils import timezone
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
@@ -110,7 +109,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         if code:
             user.is_manager = True
             code.is_used = True
-            code.used_at = datetime.now()
+            code.used_at = timezone.now()
             code.save()
 
         user.save()
