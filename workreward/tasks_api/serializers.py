@@ -1,6 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
 
 from .models import Task
 
@@ -50,3 +50,9 @@ class TaskCreateSerializer(serializers.ModelSerializer):
             task.save()
 
         return task
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = "__all__"

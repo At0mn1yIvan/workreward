@@ -7,12 +7,6 @@ from rest_framework import serializers
 from users.models import ManagerCode
 
 
-class ManagerCodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ManagerCode
-        fields = "__all__"
-
-
 class LoginUserSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
@@ -79,18 +73,19 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         if data["password"] != data["password2"]:
             errors["password"] = ["Пароли не совпадают."]
 
-        manager_code = data.get("manager_code")
+        manager_code = data.get("manager_code", None)
         if manager_code:
             try:
                 code_instance = ManagerCode.objects.get(
                     code=manager_code, is_used=False
                 )
-                data["manager_code_instance"] = code_instance
             except ManagerCode.DoesNotExist:
                 errors["manager_code"] = ["Неверный или использованный код."]
+
         if errors:
             raise serializers.ValidationError(errors)
 
+        data["manager_code_instance"] = code_instance
         return data
 
     def create(self, validated_data):
@@ -186,11 +181,12 @@ class UserPasswordResetRequestSerializer(serializers.Serializer):
         user_model = get_user_model()
         try:
             user = user_model.objects.get(email=data["email"])
-            data["user_obj"] = user
         except user_model.DoesNotExist:
             raise serializers.ValidationError(
                 {"detail": "Пользователя с таким E-mail не существует."}
             )
+
+        data["user_obj"] = user
         return data
 
 

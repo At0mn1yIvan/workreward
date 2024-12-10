@@ -1,25 +1,21 @@
 from common.utils import send_email
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import ManagerCode
 
 from .renderers import UserJSONRenderer
-from .serializers import (LoginUserSerializer, ManagerCodeSerializer,
-                          ProfileUserSerializer, RegisterUserSerializer,
-                          UserPasswordChangeSerializer,
-                          UserPasswordResetConfirmSerializer,
-                          UserPasswordResetRequestSerializer)
-
-
-class GetCodesAPIView(viewsets.ModelViewSet):
-    queryset = ManagerCode.objects.all()
-    permission_classes = (IsAuthenticated,)
-    serializer_class = ManagerCodeSerializer
+from .serializers import (
+    LoginUserSerializer,
+    ProfileUserSerializer,
+    RegisterUserSerializer,
+    UserPasswordChangeSerializer,
+    UserPasswordResetConfirmSerializer,
+    UserPasswordResetRequestSerializer,
+)
 
 
 class RegisterAPIView(APIView):
@@ -117,11 +113,15 @@ class PasswordResetRequestAPIView(APIView):
 
         uid = urlsafe_base64_encode(str(user.pk).encode())
         token = default_token_generator.make_token(user)
-        reset_link = f"{request.build_absolute_uri('/')}password-reset-confirm/{uid}/{token}/"
+        reset_link = request.build_absolute_uri(
+            f"/api/v1/users/password-reset-confirm/{uid}/{token}/"
+        )
         try:
             send_email(
                 subject="Запрос на сброс пароля",
-                message=f"Перейдите по ссылке, чтобы сбросить ваш пароль: {reset_link}",
+                message=(
+                    f"Перейдите по ссылке, чтобы сбросить ваш пароль: {reset_link}"
+                ),
                 recipient_list=[email],
             )
         except Exception as e:
