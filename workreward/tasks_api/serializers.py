@@ -5,6 +5,12 @@ from rest_framework import serializers
 from .models import Task
 
 
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = "__all__"
+
+
 class TaskCreateSerializer(serializers.ModelSerializer):
     task_performer = serializers.PrimaryKeyRelatedField(
         queryset=get_user_model().objects.filter(is_manager=False),
@@ -50,9 +56,3 @@ class TaskCreateSerializer(serializers.ModelSerializer):
             task.save()
 
         return task
-
-
-class TaskSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Task
-        fields = "__all__"

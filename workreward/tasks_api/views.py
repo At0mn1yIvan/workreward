@@ -1,16 +1,25 @@
-from rest_framework.generics import ListAPIView
 from common.utils import send_email
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from users_api.renderers import UserJSONRenderer
 
+from common.pagination import APIListPagination
+from .renderers import TaskJSONRenderer
+from django.utils import timezone
 from .models import Task
-from .permissions import IsManager
-from .serializers import TaskCreateSerializer, TaskSerializer
+from common.permissions import IsManager
+from . import serializers
+
+
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all()
+    permission_classes = (AllowAny,)
+    renderer_classes = (TaskJSONRenderer,)
+    serializer_class = serializers.TaskSerializer
+    pagination_class = APIListPagination
 
 
 class TaskCreateAPIView(APIView):
@@ -18,8 +27,8 @@ class TaskCreateAPIView(APIView):
         IsAuthenticated,
         IsManager,
     )
-    renderer_classes = (UserJSONRenderer,)
-    serializer_class = TaskCreateSerializer
+    renderer_classes = (TaskJSONRenderer,)
+    serializer_class = serializers.TaskCreateSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(
@@ -52,26 +61,37 @@ class TaskCreateAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class TaskDetailAPIView(APIView):
+class TaskTakeAPIView(APIView):
     permission_classes = (IsAuthenticated,)
-    renderer_classes = (UserJSONRenderer,)
-    serializer_class = TaskSerializer
+    renderer_classes = (TaskJSONRenderer,)
 
-    def get(self, request, task_id, *args, **kwargs):
+    def patch(self, request, pk, *args, **kwargs):
         try:
-            task = get_object_or_404(Task, pk=task_id)
+            task = get_object_or_404(Task, pk=pk)
         except Http404:
             return Response(
                 {"detail": "Задача с указанным идентификатором не найдена."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        serializer = self.serializer_class(task)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if task.task_performer:
+            return Response(
+                {"detail": "Задача уже взята."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
+        user = request.user
+        if user.is_manager:
+            return Response(
+                {"detail": "Менеджер не может брать задачи."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-class TaskListAPIView(ListAPIView):
-    queryset = Task.objects.all()
-    permission_classes = (AllowAny,)
-    renderer_classes = (UserJSONRenderer,)
-    serializer_class = TaskSerializer
+        task.task_performer = user
+        task.time_start = timezone.now()
+        task.save()
+
+        return Response(
+            {"detail": f"Вы успешно взяли задачу с id: {task.pk}."},
+            status=status.HTTP_200_OK,
+        )
