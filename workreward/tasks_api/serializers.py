@@ -41,13 +41,15 @@ class TaskCreateSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def create(self, validated_data):
+    def validate(self, data):
         user = self.context["request"].user
         if not user.is_manager:
             raise serializers.ValidationError(
                 {"detail": "Только менеджеры могут создавать задачи."}
             )
+        return data
 
+    def create(self, validated_data):
         task_performer = validated_data.get("task_performer", None)
         task = Task.objects.create(**validated_data)
 
@@ -56,3 +58,72 @@ class TaskCreateSerializer(serializers.ModelSerializer):
             task.save()
 
         return task
+
+
+class TaskTakeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if user.is_manager:
+            raise serializers.ValidationError(
+                {"detail": "Менеджер не может брать задачи."}
+            )
+
+        task = self.instance
+        if task.task_performer:
+            raise serializers.ValidationError(
+                {"detail": "Задача уже имеет исполнителя."}
+            )
+
+        return data
+
+    def update(self, instance, validated_data):
+        instance.task_performer = self.context["request"].user
+        instance.time_start = timezone.now()
+        instance.save()
+
+        return instance
+
+
+class TaskAssignSerializer(serializers.ModelSerializer):
+    task_performer = serializers.PrimaryKeyRelatedField(
+        queryset=get_user_model().objects.filter(is_manager=False),
+        required=True,
+        allow_null=False,
+    )
+
+    class Meta:
+        model = Task
+        fields = ("task_performer",)
+
+    def validate_task_performer(self, value):
+        if value and not value.is_active:
+            raise serializers.ValidationError(
+                {"task_performer": "Назначенный пользователь неактивен."}
+            )
+        return value
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not user.is_manager:
+            raise serializers.ValidationError(
+                {"detail": "Только менеджер может назначать задачи."}
+            )
+
+        task = self.instance
+        if task.task_performer:
+            raise serializers.ValidationError(
+                {"detail": "Задача уже имеет исполнителя."}
+            )
+
+        return data
+
+    def update(self, instance, validated_data):
+        instance.task_performer = validated_data.get("task_performer")
+        instance.time_start = timezone.now()
+        instance.save()
+
+        return instance

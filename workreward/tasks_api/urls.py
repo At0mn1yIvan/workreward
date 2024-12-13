@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = "tasks_api"
@@ -22,5 +23,15 @@ urlpatterns = [
         "list/<int:pk>/take/",
         views.TaskTakeAPIView.as_view(),
         name="task_take",
+    ),
+    path(
+        "list/<int:pk>/assign/",
+        views.TaskAssignAPIView.as_view(),
+        name="task_assign",
+    ),
+    path(
+        "my-tasks/",
+        views.UserTasksAPIView.as_view(),
+        name="user_tasks",
     ),
 ]

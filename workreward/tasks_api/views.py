@@ -1,10 +1,8 @@
 from common.pagination import APIListPagination
 from common.permissions import IsManager, IsNotManager
-from common.utils import send_email
-from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from rest_framework import status, viewsets
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,6 +10,7 @@ from rest_framework.views import APIView
 from . import serializers
 from .models import Task
 from .renderers import TaskJSONRenderer
+from .utils import send_task_notification
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -35,25 +34,13 @@ class TaskCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         task = serializer.save()
 
-        task_performer = task.task_performer
-        manager = request.user
-        task_url = request.build_absolute_uri(f"/api/v1/tasks/{task.pk}/")
-
-        if task_performer:
-            try:
-                send_email(
-                    subject="Назначение на задачу",
-                    message=(
-                        f"Менеджер {manager.get_full_name()} назначил Вас на задачу '{task.title}'.\n"
-                        f"Посмотреть задачу: {task_url}"
-                    ),
-                    recipient_list=[task_performer.email],
-                )
-            except Exception as e:
-                return Response(
-                    {"detail": str(e)},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+        try:
+            send_task_notification(task, request.user, request)
+        except Exception as e:
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -61,34 +48,69 @@ class TaskCreateAPIView(APIView):
 class TaskTakeAPIView(APIView):
     permission_classes = (IsNotManager,)
     renderer_classes = (TaskJSONRenderer,)
+    serializer_class = serializers.TaskTakeSerializer
 
     def patch(self, request, pk, *args, **kwargs):
-        try:
-            task = get_object_or_404(Task, pk=pk)
-        except Http404:
-            return Response(
-                {"detail": "Задача с указанным идентификатором не найдена."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        task = get_object_or_404(Task, pk=pk)
 
-        if task.task_performer:
-            return Response(
-                {"detail": "Задача уже взята."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user = request.user
-        if user.is_manager:
-            return Response(
-                {"detail": "Менеджер не может брать задачи."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        task.task_performer = user
-        task.time_start = timezone.now()
-        task.save()
+        serializer = self.serializer_class(
+            instance=task,
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
         return Response(
             {"detail": f"Вы успешно взяли задачу с id: {task.pk}."},
             status=status.HTTP_200_OK,
         )
+
+
+class TaskAssignAPIView(APIView):
+    permission_classes = (IsManager,)
+    renderer_classes = (TaskJSONRenderer,)
+    serializer_class = serializers.TaskAssignSerializer
+
+    def patch(self, request, pk, *args, **kwargs):
+        task = get_object_or_404(Task, pk=pk)
+
+        serializer = self.serializer_class(
+            instance=task,
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        task_assigned = serializer.save()
+
+        try:
+            send_task_notification(task_assigned, request.user, request)
+        except Exception as e:
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {
+                "detail": (
+                    f"Задача с id '{task_assigned.pk}' назначена пользователю {task_assigned.task_performer.get_full_name()}."
+                )
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class UserTasksAPIView(ListAPIView):
+    permission_classes = (IsNotManager,)
+    renderer_classes = (TaskJSONRenderer,)
+    serializer_class = serializers.TaskSerializer
+    pagination_class = APIListPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_manager:
+            return serializers.ValidationError(
+                {"detail": "У менеджеров не может быть своих задач."},
+            )
+        return Task.objects.filter(task_performer=user)
