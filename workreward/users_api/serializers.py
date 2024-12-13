@@ -1,7 +1,7 @@
-from django.utils import timezone
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 from users.models import ManagerCode
@@ -95,6 +95,8 @@ class RegisterUserSerializer(serializers.ModelSerializer):
                 )
             except ManagerCode.DoesNotExist:
                 errors["manager_code"] = ["Неверный или использованный код."]
+        else:
+            code_instance = None
 
         if errors:
             raise serializers.ValidationError(errors)
@@ -193,6 +195,8 @@ class UserPasswordResetRequestSerializer(serializers.Serializer):
 
     def validate(self, data):
         user_model = get_user_model()
+        user = None
+
         try:
             user = user_model.objects.get(email=data["email"])
         except user_model.DoesNotExist:
@@ -223,10 +227,13 @@ class UserPasswordResetConfirmSerializer(serializers.Serializer):
                 {"new_password2": "Пароли не совпадают."}
             )
 
+        user_model = get_user_model()
+        user = None
+
         try:
-            user_model = get_user_model()
             uid = urlsafe_base64_decode(data["uidb64"]).decode()
             user = user_model.objects.get(pk=uid)
+
         except (user_model.DoesNotExist, ValueError, TypeError):
             raise serializers.ValidationError({"uidb64": "Неверная ссылка."})
 
@@ -236,7 +243,6 @@ class UserPasswordResetConfirmSerializer(serializers.Serializer):
             )
 
         data["user_obj"] = user
-
         return data
 
     def save(self):
