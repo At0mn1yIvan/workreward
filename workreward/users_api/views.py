@@ -16,10 +16,7 @@ from .renderers import UserJSONRenderer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = get_user_model().objects.all()
-    permission_classes = (
-        IsAuthenticated,
-        IsManager,
-    )
+    permission_classes = (IsManager,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = serializers.UserSerializer
     pagination_class = APIListPagination
@@ -51,7 +48,11 @@ class LoginAPIView(APIView):
         refresh = RefreshToken.for_user(user)
 
         return Response(
-            {"refresh": str(refresh), "access": str(refresh.access_token)},
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "is_manager": user.is_manager,
+            },
             status=status.HTTP_200_OK,
         )
 

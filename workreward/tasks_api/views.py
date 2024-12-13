@@ -1,32 +1,29 @@
+from common.pagination import APIListPagination
+from common.permissions import IsManager, IsNotManager
 from common.utils import send_email
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.pagination import APIListPagination
-from .renderers import TaskJSONRenderer
-from django.utils import timezone
-from .models import Task
-from common.permissions import IsManager
 from . import serializers
+from .models import Task
+from .renderers import TaskJSONRenderer
 
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (TaskJSONRenderer,)
     serializer_class = serializers.TaskSerializer
     pagination_class = APIListPagination
 
 
 class TaskCreateAPIView(APIView):
-    permission_classes = (
-        IsAuthenticated,
-        IsManager,
-    )
+    permission_classes = (IsManager,)
     renderer_classes = (TaskJSONRenderer,)
     serializer_class = serializers.TaskCreateSerializer
 
@@ -62,7 +59,7 @@ class TaskCreateAPIView(APIView):
 
 
 class TaskTakeAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsNotManager,)
     renderer_classes = (TaskJSONRenderer,)
 
     def patch(self, request, pk, *args, **kwargs):
