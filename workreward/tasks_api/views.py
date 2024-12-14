@@ -21,6 +21,21 @@ class TaskViewSet(viewsets.ModelViewSet):
     pagination_class = APIListPagination
 
 
+class UserTasksAPIView(ListAPIView):
+    permission_classes = (IsNotManager,)
+    renderer_classes = (TaskJSONRenderer,)
+    serializer_class = serializers.TaskSerializer
+    pagination_class = APIListPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_manager:
+            return serializers.ValidationError(
+                {"detail": "У менеджеров не может быть своих задач."},
+            )
+        return Task.objects.filter(task_performer=user)
+
+
 class TaskCreateAPIView(APIView):
     permission_classes = (IsManager,)
     renderer_classes = (TaskJSONRenderer,)
@@ -101,16 +116,23 @@ class TaskAssignAPIView(APIView):
         )
 
 
-class UserTasksAPIView(ListAPIView):
+class TaskCompleteAPIView(APIView):
     permission_classes = (IsNotManager,)
     renderer_classes = (TaskJSONRenderer,)
-    serializer_class = serializers.TaskSerializer
-    pagination_class = APIListPagination
+    serializer_class = serializers.TaskCompleteSerializer
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_manager:
-            return serializers.ValidationError(
-                {"detail": "У менеджеров не может быть своих задач."},
-            )
-        return Task.objects.filter(task_performer=user)
+    def patch(self, request, pk, *args, **kwargs):
+        task = get_object_or_404(Task, pk=pk)
+
+        serializer = self.serializer_class(
+            instance=task,
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"detail": f"Задача с id '{task.pk}' успешно завершена."},
+            status=status.HTTP_200_OK,
+        )

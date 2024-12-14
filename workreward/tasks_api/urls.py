@@ -30,6 +30,11 @@ urlpatterns = [
         name="task_assign",
     ),
     path(
+        "list/<int:pk>/complete/",
+        views.TaskCompleteAPIView.as_view(),
+        name="task_complete",
+    ),
+    path(
         "my-tasks/",
         views.UserTasksAPIView.as_view(),
         name="user_tasks",

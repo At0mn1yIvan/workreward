@@ -127,3 +127,35 @@ class TaskAssignSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class TaskCompleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if user.is_manager:
+            raise serializers.ValidationError(
+                {"detail": "Менеджер не может сдать задачу."}
+            )
+
+        task = self.instance
+        if task.task_performer != user:
+            raise serializers.ValidationError(
+                {"detail": "Вы не являетесь исполнителем этой задачи."}
+            )
+
+        if task.time_completion:
+            raise serializers.ValidationError(
+                {"detail": "Эта задача уже завершена."}
+            )
+
+        return data
+
+    def update(self, instance, validated_data):
+        instance.time_completion = timezone.now()
+        instance.save()
+
+        return instance
