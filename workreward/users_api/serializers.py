@@ -130,13 +130,14 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 class ProfileUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ("username", "email", "first_name", "last_name", "patronymic")
+        fields = ("username", "email", "first_name", "last_name", "patronymic", "is_manager",)
         extra_kwargs = {
             "username": {"read_only": True},
             "email": {"read_only": True},
             "first_name": {"required": True},
             "last_name": {"required": True},
             "patronymic": {"required": False},
+            "is_manager": {"read_only": True},
         }
 
     def update(self, instance, validated_data):
