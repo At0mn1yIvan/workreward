@@ -6,9 +6,32 @@ from .models import Task
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    task_performer = serializers.SerializerMethodField()
+
     class Meta:
         model = Task
-        fields = "__all__"
+        fields = (
+            "id",
+            "title",
+            "description",
+            "difficulty",
+            "task_duration",
+            "time_create",
+            "time_completion",
+            "time_start",
+            "task_performer",
+        )
+
+    def get_task_performer(self, obj):
+        task_performer = obj.task_performer
+        if not task_performer:
+            return None
+
+        first_name = task_performer.first_name
+        last_name = task_performer.last_name
+        patronymic = task_performer.patronymic or ""
+
+        return f"{last_name} {first_name} {patronymic}".strip()
 
 
 class TaskCreateSerializer(serializers.ModelSerializer):

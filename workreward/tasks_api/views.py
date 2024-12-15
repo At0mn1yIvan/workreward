@@ -14,7 +14,7 @@ from .utils import send_task_notification
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
+    queryset = Task.objects.all().select_related("task_performer")
     permission_classes = (IsAuthenticated,)
     renderer_classes = (TaskJSONRenderer,)
     serializer_class = serializers.TaskSerializer

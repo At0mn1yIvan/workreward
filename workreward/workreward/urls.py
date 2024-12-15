@@ -25,6 +25,7 @@ urlpatterns = [
     path("users/", include("users.urls", namespace="users")),
     path("api/v1/users/", include("users_api.urls", namespace="users_api")),
     path("api/v1/tasks/", include("tasks_api.urls", namespace="tasks_api")),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
 
 handler404 = page_not_found

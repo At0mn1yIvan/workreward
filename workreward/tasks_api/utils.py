@@ -25,4 +25,9 @@ def send_task_notification(task: Task, manager: User, request) -> None:
             recipient_list=[task_performer.email],
         )
     except Exception as e:
-        raise Exception(f"Ошибка при отправке уведомления: {str(e)}")
+        error_message = (
+            "Исполнитель назначен на задачу.\n"
+            f"Ошибка при отправке уведомления: {str(e)}\n"
+            "Возможно, исполнитель указал несуществующую почту."
+        )
+        raise Exception(error_message)
