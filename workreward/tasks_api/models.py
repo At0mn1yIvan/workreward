@@ -12,12 +12,19 @@ class Task(models.Model):
     time_create = models.DateTimeField(auto_now_add=True)
     time_completion = models.DateTimeField(null=True, blank=True)
     time_start = models.DateTimeField(null=True, blank=True)
+    task_creator = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+        related_name="created_tasks",
+    )
     task_performer = models.ForeignKey(
         get_user_model(),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="tasks",
+        related_name="performed_tasks",
     )
 
     def __str__(self):

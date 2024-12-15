@@ -6,6 +6,7 @@ from .models import Task
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    task_creator = serializers.SerializerMethodField()
     task_performer = serializers.SerializerMethodField()
 
     class Meta:
@@ -19,8 +20,20 @@ class TaskSerializer(serializers.ModelSerializer):
             "time_create",
             "time_completion",
             "time_start",
+            "task_creator",
             "task_performer",
         )
+
+    def get_task_creator(self, obj):
+        task_creator = obj.task_creator
+        if not task_creator:
+            return None
+
+        first_name = task_creator.first_name
+        last_name = task_creator.last_name
+        patronymic = task_creator.patronymic or ""
+
+        return f"{last_name} {first_name} {patronymic}".strip()
 
     def get_task_performer(self, obj):
         task_performer = obj.task_performer
@@ -41,6 +54,10 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         allow_null=False,
     )
 
+    task_creator = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+    )
+
     class Meta:
         model = Task
         fields = (
@@ -48,6 +65,7 @@ class TaskCreateSerializer(serializers.ModelSerializer):
             "description",
             "difficulty",
             "task_duration",
+            "task_creator",
             "task_performer",
         )
         extra_kwargs = {
@@ -70,6 +88,8 @@ class TaskCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"detail": "Только менеджеры могут создавать задачи."}
             )
+
+        data["task_creator"] = user
         return data
 
     def create(self, validated_data):
@@ -131,12 +151,18 @@ class TaskAssignSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         user = self.context["request"].user
+
         if not user.is_manager:
             raise serializers.ValidationError(
                 {"detail": "Только менеджер может назначать задачи."}
             )
 
         task = self.instance
+        if task.task_creator != user:
+            raise serializers.ValidationError(
+                {"detail": "Вы не можете назначать исполнителей на задачи другого менеджера."}
+            )
+
         if task.task_performer:
             raise serializers.ValidationError(
                 {"detail": "Задача уже имеет исполнителя."}

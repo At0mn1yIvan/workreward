@@ -52,6 +52,7 @@ class LoginAPIView(APIView):
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
                 "is_manager": user.is_manager,
+                "id": user.pk,
             },
             status=status.HTTP_200_OK,
         )

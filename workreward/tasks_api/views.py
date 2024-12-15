@@ -14,11 +14,22 @@ from .utils import send_task_notification
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all().select_related("task_performer")
     permission_classes = (IsAuthenticated,)
     renderer_classes = (TaskJSONRenderer,)
     serializer_class = serializers.TaskSerializer
     pagination_class = APIListPagination
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_manager:
+            return Task.objects.filter(
+                task_creator=user
+            ).select_related("task_creator", "task_performer")
+        else:
+            return Task.objects.filter(
+                task_performer__isnull=True
+            ).select_related("task_creator", "task_performer")
 
 
 class UserTasksAPIView(ListAPIView):
@@ -50,7 +61,7 @@ class TaskCreateAPIView(APIView):
         task = serializer.save()
 
         try:
-            send_task_notification(task, request.user, request)
+            send_task_notification(task, request)
         except Exception as e:
             return Response(
                 {"detail": str(e)},
@@ -99,7 +110,7 @@ class TaskAssignAPIView(APIView):
         task_assigned = serializer.save()
 
         try:
-            send_task_notification(task_assigned, request.user, request)
+            send_task_notification(task_assigned, request)
         except Exception as e:
             return Response(
                 {"detail": str(e)},
