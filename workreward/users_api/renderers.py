@@ -1,10 +1,5 @@
-import json
-
-from rest_framework.renderers import JSONRenderer
+from common.base_renderer import BaseJSONRenderer
 
 
-class UserJSONRenderer(JSONRenderer):
-    charset = "utf-8"
-
-    def render(self, data, media_type=None, renderer_context=None) -> str:
-        return json.dumps({"user": data})
+class UserJSONRenderer(BaseJSONRenderer):
+    root_key = "user"

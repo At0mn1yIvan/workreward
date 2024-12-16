@@ -3,7 +3,9 @@ from django.db import models
 
 
 class Task(models.Model):
-    title = models.CharField(max_length=255, null=False, blank=False)
+    title = models.CharField(
+        max_length=255, null=False, blank=False, unique=True
+    )
     description = models.TextField(null=False, blank=False)
     difficulty = models.IntegerField(
         choices=[(i, str(i)) for i in range(1, 6)], null=False, blank=False

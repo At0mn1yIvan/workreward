@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from . import serializers
 from .models import Task
 from .renderers import TaskJSONRenderer
-from .utils import send_task_notification
+from .utils import send_task_assign_notification
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -61,7 +61,7 @@ class TaskCreateAPIView(APIView):
         task = serializer.save()
 
         try:
-            send_task_notification(task, request)
+            send_task_assign_notification(task, request)
         except Exception as e:
             return Response(
                 {"detail": str(e)},
@@ -110,7 +110,7 @@ class TaskAssignAPIView(APIView):
         task_assigned = serializer.save()
 
         try:
-            send_task_notification(task_assigned, request)
+            send_task_assign_notification(task_assigned, request)
         except Exception as e:
             return Response(
                 {"detail": str(e)},

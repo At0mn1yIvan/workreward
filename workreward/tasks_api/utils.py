@@ -1,9 +1,10 @@
-from django.urls import reverse
 from common.utils import send_email
+from django.urls import reverse
+
 from .models import Task
 
 
-def send_task_notification(task: Task, request) -> None:
+def send_task_assign_notification(task: Task, request) -> None:
     if not task.task_performer:
         return
 

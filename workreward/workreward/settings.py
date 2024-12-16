@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "users_api.apps.UsersApiConfig",
     "tasks_api.apps.TasksApiConfig",
+    "reports_api.apps.ReportsApiConfig",
     "debug_toolbar",
 ]
 

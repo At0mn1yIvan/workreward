@@ -11,12 +11,12 @@ urlpatterns = [
     ),
     path(
         "list/",
-        views.TaskViewSet.as_view({'get': 'list'}),
+        views.TaskViewSet.as_view({"get": "list"}),
         name="tasks_list",
     ),
     path(
         "list/<int:pk>/",
-        views.TaskViewSet.as_view({'get': 'retrieve'}),
+        views.TaskViewSet.as_view({"get": "retrieve"}),
         name="task_detail",
     ),
     path(
