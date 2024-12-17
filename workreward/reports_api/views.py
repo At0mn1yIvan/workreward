@@ -1,12 +1,13 @@
+from django.http import HttpResponse
 from common.pagination import APIListPagination
-from common.permissions import IsNotManager
+from common.permissions import IsManager, IsNotManager
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from tasks_api.models import Task
-from .utils import send_report_done_notification
+from .utils import generate_task_report_pdf, send_report_done_notification
 
 from . import serializers
 from .models import TaskReport
@@ -37,7 +38,9 @@ class TaskReportCreateAPIView(APIView):
     class_serializer = serializers.TaskReportCreateSerializer
 
     def post(self, request, task_pk, *args, **kwargs):
-        task = get_object_or_404(Task.objects.select_related("task_creator"), pk=task_pk)
+        task = get_object_or_404(
+            Task.objects.select_related("task_creator"), pk=task_pk
+        )
 
         serializer = self.class_serializer(
             data=request.data, context={"request": request, "task": task}
@@ -54,3 +57,24 @@ class TaskReportCreateAPIView(APIView):
             )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class TaskReportDownloadAPIView(APIView):
+    permission_classes = (IsManager,)
+
+    def get(self, request, pk, *args, **kwargs):
+        task_report = get_object_or_404(
+            TaskReport.objects.select_related(
+                "task", "task__task_creator", "task__task_performer"
+            ),
+            pk=pk,
+        )
+
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = (
+            f"attachment; filename=report_{task_report.pk}.pdf"
+        )
+
+        generate_task_report_pdf(task_report, response)
+
+        return response

@@ -20,6 +20,12 @@ class User(AbstractUser):
     patronymic = models.CharField(max_length=150, null=True, blank=True)
     is_manager = models.BooleanField(default=False)
 
+    def get_full_name(self) -> str:
+        full_name = (
+            f"{self.last_name} {self.first_name} {self.patronymic or ''}"
+        )
+        return full_name.strip()
+
 
 class ManagerCode(models.Model):
     """

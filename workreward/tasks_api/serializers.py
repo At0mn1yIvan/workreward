@@ -29,22 +29,14 @@ class TaskSerializer(serializers.ModelSerializer):
         if not task_creator:
             return None
 
-        first_name = task_creator.first_name
-        last_name = task_creator.last_name
-        patronymic = task_creator.patronymic or ""
-
-        return f"{last_name} {first_name} {patronymic}".strip()
+        return task_creator.get_full_name()
 
     def get_task_performer(self, obj):
         task_performer = obj.task_performer
         if not task_performer:
             return None
 
-        first_name = task_performer.first_name
-        last_name = task_performer.last_name
-        patronymic = task_performer.patronymic or ""
-
-        return f"{last_name} {first_name} {patronymic}".strip()
+        return task_performer.get_full_name()
 
 
 class TaskCreateSerializer(serializers.ModelSerializer):
@@ -97,7 +89,7 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         task = Task.objects.create(**validated_data)
 
         if task_performer:
-            task.time_start = timezone.now()
+            task.time_start = timezone.localtime(timezone.now())
             task.save()
 
         return task
@@ -125,7 +117,7 @@ class TaskTakeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.task_performer = self.context["request"].user
-        instance.time_start = timezone.now()
+        instance.time_start = timezone.localtime(timezone.now())
         instance.save()
 
         return instance
@@ -172,7 +164,7 @@ class TaskAssignSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.task_performer = validated_data.get("task_performer")
-        instance.time_start = timezone.now()
+        instance.time_start = timezone.localtime(timezone.now())
         instance.save()
 
         return instance
@@ -204,7 +196,7 @@ class TaskCompleteSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        instance.time_completion = timezone.now()
+        instance.time_completion = timezone.localtime(timezone.now())
         instance.save()
 
         return instance

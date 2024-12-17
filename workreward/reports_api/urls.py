@@ -19,4 +19,9 @@ urlpatterns = [
         views.TaskReportViewSet.as_view({"get": "retrieve"}),
         name="report_detail",
     ),
+    path(
+        "<int:pk>/download/",
+        views.TaskReportDownloadAPIView.as_view(),
+        name="report_download",
+    )
 ]

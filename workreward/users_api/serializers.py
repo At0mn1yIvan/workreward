@@ -120,7 +120,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         if code:
             user.is_manager = True
             code.is_used = True
-            code.used_at = timezone.now()
+            code.used_at = timezone.localtime(timezone.now())
             code.save()
 
         user.save()

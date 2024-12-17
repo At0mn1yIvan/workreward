@@ -65,7 +65,7 @@ class TaskReportCreateSerializer(serializers.ModelSerializer):
             task=task,
             text=validated_data["text"],
             efficiency_score=calculate_performer_efficiency(task),
-            time_create=timezone.now(),
+            time_create=timezone.localtime(timezone.now()),
         )
 
         return report
