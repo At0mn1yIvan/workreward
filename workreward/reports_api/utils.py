@@ -35,8 +35,10 @@ def calculate_performer_efficiency(task: Task) -> float:
     return time_efficiency * (1 + difficulty_efficiency)
 
 
-def send_report_done_notification(task_report: TaskReport, request) -> None:
-
+def send_report_done_notification(task_report_pk: int, request) -> None:
+    task_report = TaskReport.objects.select_related(
+        "task", "task__task_creator"
+    ).get(pk=task_report_pk)
     task_performer = request.user
     manager = task_report.task.task_creator
     report_url = request.build_absolute_uri(

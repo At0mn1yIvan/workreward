@@ -3,7 +3,7 @@ from common.permissions import IsManager, IsNotManager
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -61,7 +61,7 @@ class TaskCreateAPIView(APIView):
         task = serializer.save()
 
         try:
-            send_task_assign_notification(task, request)
+            send_task_assign_notification(task.pk, request)
         except Exception as e:
             return Response(
                 {"detail": str(e)},
@@ -110,7 +110,7 @@ class TaskAssignAPIView(APIView):
         task_assigned = serializer.save()
 
         try:
-            send_task_assign_notification(task_assigned, request)
+            send_task_assign_notification(task_assigned.pk, request)
         except Exception as e:
             return Response(
                 {"detail": str(e)},

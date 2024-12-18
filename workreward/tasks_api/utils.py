@@ -4,7 +4,8 @@ from django.urls import reverse
 from .models import Task
 
 
-def send_task_assign_notification(task: Task, request) -> None:
+def send_task_assign_notification(task_pk: int, request) -> None:
+    task = Task.objects.select_related("task_performer").get(pk=task_pk)
     if not task.task_performer:
         return
 

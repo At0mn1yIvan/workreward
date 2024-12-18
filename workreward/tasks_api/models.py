@@ -16,9 +16,9 @@ class Task(models.Model):
     time_start = models.DateTimeField(null=True, blank=True)
     task_creator = models.ForeignKey(
         get_user_model(),
-        on_delete=models.CASCADE,
-        null=False,
-        blank=False,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="created_tasks",
     )
     task_performer = models.ForeignKey(

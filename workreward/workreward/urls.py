@@ -28,6 +28,9 @@ urlpatterns = [
     path(
         "api/v1/reports/", include("reports_api.urls", namespace="reports_api")
     ),
+    path(
+        "api/v1/rewards/", include("rewards_api.urls", namespace="rewards_api")
+    ),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
 

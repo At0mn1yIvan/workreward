@@ -62,10 +62,10 @@ class TaskReportCreateSerializer(serializers.ModelSerializer):
         task = validated_data.get("task_obj")
 
         report = TaskReport.objects.create(
-            task=task,
             text=validated_data["text"],
             efficiency_score=calculate_performer_efficiency(task),
             time_create=timezone.localtime(timezone.now()),
+            task=task,
         )
 
         return report

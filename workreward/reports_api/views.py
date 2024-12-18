@@ -38,9 +38,7 @@ class TaskReportCreateAPIView(APIView):
     class_serializer = serializers.TaskReportCreateSerializer
 
     def post(self, request, task_pk, *args, **kwargs):
-        task = get_object_or_404(
-            Task.objects.select_related("task_creator"), pk=task_pk
-        )
+        task = get_object_or_404(Task, pk=task_pk)
 
         serializer = self.class_serializer(
             data=request.data, context={"request": request, "task": task}
@@ -49,7 +47,7 @@ class TaskReportCreateAPIView(APIView):
         task_report = serializer.save()
 
         try:
-            send_report_done_notification(task_report, request)
+            send_report_done_notification(task_report.pk, request)
         except Exception as e:
             return Response(
                 {"detail": str(e)},
