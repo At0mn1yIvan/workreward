@@ -17,12 +17,9 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from tasks.views import page_not_found
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("tasks.urls", namespace="tasks")),
-    path("users/", include("users.urls", namespace="users")),
     path("api/v1/users/", include("users_api.urls", namespace="users_api")),
     path("api/v1/tasks/", include("tasks_api.urls", namespace="tasks_api")),
     path(
@@ -33,5 +30,3 @@ urlpatterns = [
     ),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
-
-handler404 = page_not_found

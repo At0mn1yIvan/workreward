@@ -1,10 +1,11 @@
+from django.http import HttpRequest
 from common.utils import send_email
 from django.urls import reverse
 
 from .models import Task
 
 
-def send_task_assign_notification(task_pk: int, request) -> None:
+def send_task_assign_notification(task_pk: int, request: HttpRequest) -> None:
     task = Task.objects.select_related("task_performer").get(pk=task_pk)
     if not task.task_performer:
         return

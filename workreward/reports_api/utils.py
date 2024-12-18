@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Any
 
+from django.http import HttpRequest
+
 from workreward import settings
 from common.utils import send_email
 from django.urls import reverse
@@ -35,7 +37,7 @@ def calculate_performer_efficiency(task: Task) -> float:
     return time_efficiency * (1 + difficulty_efficiency)
 
 
-def send_report_done_notification(task_report_pk: int, request) -> None:
+def send_report_done_notification(task_report_pk: int, request: HttpRequest) -> None:
     task_report = TaskReport.objects.select_related(
         "task", "task__task_creator"
     ).get(pk=task_report_pk)

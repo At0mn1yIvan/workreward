@@ -50,8 +50,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
-    "tasks.apps.TasksConfig",
-    "users.apps.UsersConfig",
     "users_api.apps.UsersApiConfig",
     "tasks_api.apps.TasksApiConfig",
     "reports_api.apps.ReportsApiConfig",
@@ -77,9 +75,7 @@ ROOT_URLCONF = "workreward.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            BASE_DIR / "templates",
-        ],
+        "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -87,7 +83,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "tasks.context_processors.get_tasks_context",
             ],
         },
     },
@@ -188,7 +183,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
 # TODO: Добавить константу STATIC_ROOT к деплойменту приложения.
 
 # Default primary key field type
@@ -196,15 +190,11 @@ STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = "users.User"
-
-LOGIN_REDIRECT_URL = "tasks:home"
-LOGOUT_REDIRECT_URL = "tasks:home"
-LOGIN_URL = "users:login"
+AUTH_USER_MODEL = "users_api.User"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "users.authentication.EmailAuthBackend",
+    "users_api.authentication.EmailAuthBackend",
 ]
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
