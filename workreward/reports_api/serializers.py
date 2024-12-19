@@ -7,6 +7,13 @@ from .utils import calculate_performer_efficiency
 
 
 class TaskReportSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели отчётов.
+
+    Этот сериализатор используется для преобразования экземпляров отчётов
+    по задачам в формат JSON. Содержит все поля модели задачи.
+    """
+
     task = TaskSerializer(read_only=True)
 
     class Meta:
@@ -15,6 +22,24 @@ class TaskReportSerializer(serializers.ModelSerializer):
 
 
 class TaskReportCreateSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для создания отчёта по задаче.
+
+    Этот сериализатор используется для валидации и создания нового отчёта
+    по задаче на основе предоставленных данных. Он проверяет, является ли
+    пользователь исполнителем задачи, завершена ли задача, и существует ли
+    уже отчёт для этой задачи.
+
+    Атрибуты:
+        - text (str): Текст отчёта, обязательный для создания.
+
+    Методы:
+        - validate(): Выполняет все необходимые проверки
+        перед созданием отчёта.
+        - create(): Создаёт новый отчёт по задаче,
+        вычисляя эффективность исполнителя.
+    """
+
     text = serializers.CharField(required=True)
 
     class Meta:

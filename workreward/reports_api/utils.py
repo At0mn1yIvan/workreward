@@ -18,6 +18,27 @@ from .models import TaskReport
 
 
 def calculate_performer_efficiency(task: Task) -> float:
+    """
+    Вычисление эффективности исполнителя задачи
+    на основе времени выполнения задачи и её сложности.
+
+    Эффективность определяется как отношение
+    предполагаемого времени выполнения задачи
+    к фактическому времени выполнения, с учетом сложности задачи.
+
+    Формула вычисления:
+    - Эффективность времени = (предполагаемое время выполнения / фактическое время выполнения) * стабилизирующий коэффициент
+    - Эффективность по сложности = (уровень сложности задачи / количество уровней сложности)
+    - Общая эффективность = (эффективность времени) * (1 + эффективность по сложности)
+
+    Аргументы:
+        - task (Task): Объект задачи, для которой рассчитывается эффективность.
+
+    Возвращаемое значение:
+        - float: Значение эффективности исполнителя задачи.
+        Если время выполнения задачи некорректно (меньше или равно нулю),
+        возвращается 0.
+    """
     time_taken_seconds = (
         task.time_completion - task.time_start
     ).total_seconds()
@@ -38,6 +59,25 @@ def calculate_performer_efficiency(task: Task) -> float:
 
 
 def send_report_done_notification(task_report_pk: int, request: HttpRequest) -> None:
+    """
+    Отправка уведомления менеджеру о завершении задачи
+    и создании отчёта исполнителем.
+
+    Уведомление включает информацию о завершённой задаче, имени исполнителя
+    и ссылке на созданный отчёт. Уведомление отправляется на электронную почту
+    менеджера, который является создателем задачи.
+
+
+    Аргументы:
+        - task_report_pk (int): Идентификатор отчёта,
+        для которого отправляется уведомление.
+        - request (HttpRequest): Объект запроса, содержащий информацию
+        о текущем пользователе (менеджере) и домене сайта.
+
+    Исключения:
+        Exception: Если возникает ошибка при отправке письма,
+        будет поднято исключение с подробным сообщением.
+    """
     task_report = TaskReport.objects.select_related(
         "task", "task__task_creator"
     ).get(pk=task_report_pk)
@@ -66,7 +106,52 @@ def send_report_done_notification(task_report_pk: int, request: HttpRequest) -> 
 
 
 class ReportGenerator:
+    """
+    Генератор отчётов для задач, который создаёт PDF документ с информацией
+    о задаче и её исполнении.
+
+    Класс используется для создания PDF отчётов
+    с подробной информацией о задаче, её исполнителе, длительности,
+    сложности и эффективности исполнения.
+
+    Атрибуты:
+        - task_report (TaskReport): Объект отчёта, содержащий информацию
+        о задаче и её выполнении.
+        - response (HttpResponse): Ответ HTTP,
+        в который будет записан сгенерированный PDF файл.
+        - doc (SimpleDocTemplate): Объект для создания PDF документа.
+        - styles (StyleSheet1): Набор стандартных стилей
+        для форматирования текста в PDF.
+        - normal_style (ParagraphStyle): Кастомный стиль для обычного текста.
+        - bold_style (ParagraphStyle): Кастомный стиль для жирного текста.
+        - title_style (ParagraphStyle): Кастомный стиль для заголовков.
+
+    Методы:
+        - _initialize_fonts(): Регистрирует шрифты для использования в PDF.
+        - _create_styles(): Создаёт кастомные стили для текста.
+        - format_timedelta(td_object): Форматирует объект timedelta
+        в строку с информацией о времени.
+        - generate_report_data(): Генерирует данные для отчёта в виде словаря.
+        - build_pdf(): Строит и генерирует PDF файл с отчётом по задаче.
+
+    Примечания:
+        - Шрифты DejaVu Sans Condensed и DejaVu Sans Condensed Bold
+        используются для текстов в отчёте и использованы
+        для корректного отображения кириллицы.
+        - Все данные для отчёта извлекаются из объекта TaskReport,
+        связанного с задачей.
+    """
+
     def __init__(self, task_report, response):
+        """
+        Инициализирует объект генератора отчёта.
+
+        Аргументы:
+            - task_report (TaskReport): Объект отчёта, содержащий информацию
+            о задаче и её выполнении.
+            - response (HttpResponse): Ответ HTTP, в который будет записан
+            сгенерированный PDF файл.
+        """
         self.task_report = task_report
         self.response = response
         self.doc = SimpleDocTemplate(
@@ -77,6 +162,9 @@ class ReportGenerator:
         self._create_styles()
 
     def _initialize_fonts(self):
+        """
+        Регистрирует шрифты для использования в PDF.
+        """
         font_path = settings.BASE_DIR / "reports_api" / "fonts"
 
         pdfmetrics.registerFont(
@@ -87,6 +175,9 @@ class ReportGenerator:
         )
 
     def _create_styles(self) -> None:
+        """
+        Создаёт кастомные стили для текста, которые используются в отчёте.
+        """
         self.normal_style = ParagraphStyle(
             "CustomStyle",
             parent=self.styles["Normal"],
@@ -110,6 +201,17 @@ class ReportGenerator:
         )
 
     def format_timedelta(self, td_object: timedelta) -> str:
+        """
+        Форматирует объект timedelta в строку
+        с информацией о времени (дни, часы, минуты, секунды).
+
+        Аргументы:
+            - td_object (timedelta): Объект времени для форматирования.
+
+        Возвращаемое значение:
+            - str: Строка, представляющая временной интервал
+            в формате "дни: X | часы: Y | минуты: Z | секунды: W".
+        """
         total_seconds = td_object.total_seconds()
         DAY_SECONDS = 86400
         HOUR_SECONDS = 3600
@@ -126,6 +228,12 @@ class ReportGenerator:
             return time_str
 
     def generate_report_data(self) -> dict[str, Any]:
+        """
+        Генерирует данные для отчёта в виде словаря.
+
+        Возвращаемое значение:
+            - dict: Словарь, содержащий данные отчёта.
+        """
         actual_task_duration = (
             self.task_report.task.time_completion
             - self.task_report.task.time_start
@@ -153,6 +261,9 @@ class ReportGenerator:
         }
 
     def build_pdf(self) -> None:
+        """
+        Строит и генерирует PDF файл с отчётом по задаче.
+        """
         report_data = self.generate_report_data()
         elements = []
         elements.append(
@@ -171,5 +282,21 @@ class ReportGenerator:
 
 
 def generate_task_report_pdf(task_report, response) -> None:
+    """
+    Генерирует PDF отчет по задаче и отправляет его в ответ.
+
+    Эта функция использует класс `ReportGenerator` для создания PDF документа,
+    который содержит информацию о задаче и её исполнении, и передает его в
+    объект `response`.
+
+    Аргументы:
+        - task_report (TaskReport): Объект отчёта, содержащий информацию
+        о задаче и её выполнении.
+        - response (HttpResponse): Ответ HTTP,
+        в который будет записан сгенерированный PDF файл.
+
+    Возвращаемое значение:
+        - None
+    """
     report = ReportGenerator(task_report, response)
     report.build_pdf()

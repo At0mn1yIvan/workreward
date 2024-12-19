@@ -15,6 +15,24 @@ from .renderers import ReportJSONRenderer
 
 
 class TaskReportViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet для получения объектов отчётов по задачам.
+
+    Атрибуты:
+        - permission_classes (tuple): Определяет, что доступ к данному API
+        имеют только аутентифицированные пользователи.
+        - renderer_classes (tuple): Определяет, что ответы будут рендериться
+        в формате JSON с использованием рендерера ReportJSONRenderer.
+        - serializer_class (serializers.TaskReportSerializer): Сериализатор для
+        преобразования данных отчёта в JSON и обратно.
+        - pagination_class (APIListPagination): Класс пагинации для разделения
+        результатов на страницы.
+
+    Методы:
+        - get_queryset(): Определяет, какие отчёты могут быть получены
+        пользователем в зависимости от его роли (менеджер или исполнитель).
+    """
+
     permission_classes = (IsAuthenticated,)
     renderer_classes = (ReportJSONRenderer,)
     serializer_class = serializers.TaskReportSerializer
@@ -33,6 +51,26 @@ class TaskReportViewSet(viewsets.ModelViewSet):
 
 
 class TaskReportCreateAPIView(APIView):
+    """
+    Представление для создания отчёта по задаче.
+
+    Этот класс предоставляет API для создания отчётов по задачам, и доступен
+    только для пользователей, которые не являются менеджерами. После создания
+    отчёта, отправляется уведомление о завершении задачи.
+
+    Атрибуты:
+        - permission_classes (tuple): Определяет, что доступ к данному API
+        имеют пользователи, которые не являются менеджерами.
+        - renderer_classes (tuple): Определяет, что ответы будут рендериться
+        в формате JSON с использованием рендерера ReportJSONRenderer.
+        - class_serializer (serializers.TaskReportCreateSerializer):
+        Сериализатор для создания отчётов по задачам.
+
+    Методы:
+        - post(): Создаёт отчёт по задаче,
+        проверяя права доступа и валидируя данные.
+    """
+
     permission_classes = (IsNotManager,)
     renderer_classes = (ReportJSONRenderer,)
     class_serializer = serializers.TaskReportCreateSerializer
@@ -58,6 +96,18 @@ class TaskReportCreateAPIView(APIView):
 
 
 class TaskReportDownloadAPIView(APIView):
+    """
+    Представление для скачивания отчёта по задаче в формате PDF.
+
+    Атрибуты:
+        - permission_classes (tuple): Определяет, что доступ
+        к данному API имеют только менеджеры.
+
+    Методы:
+        - get(): Обрабатывает GET-запрос, генерирует PDF-отчёт по задаче
+          и возвращает его в виде ответа.
+    """
+
     permission_classes = (IsManager,)
 
     def get(self, request, pk, *args, **kwargs):
