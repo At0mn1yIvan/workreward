@@ -8,6 +8,9 @@ def send_email(
     recipient_list: list[str],
     from_email: str = EMAIL_HOST_USER,
 ) -> None:
+    """
+        Переопределенная функция отправки электронного письма.
+    """
     try:
         send_mail(subject, message, from_email, recipient_list)
     except Exception as e:
