@@ -29,8 +29,15 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+]
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # Application definition
 
@@ -42,10 +49,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "tasks.apps.TasksConfig",
-    "users.apps.UsersConfig",
+    "corsheaders",
     "users_api.apps.UsersApiConfig",
     "tasks_api.apps.TasksApiConfig",
+    "reports_api.apps.ReportsApiConfig",
+    "rewards_api.apps.RewardsApiConfig",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -57,6 +66,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "workreward.urls"
@@ -64,9 +75,7 @@ ROOT_URLCONF = "workreward.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            BASE_DIR / "templates",
-        ],
+        "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -74,7 +83,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "tasks.context_processors.get_tasks_context",
             ],
         },
     },
@@ -122,6 +130,10 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ),
 }
 
 SIMPLE_JWT = {
@@ -158,12 +170,11 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = "ru-Ru"
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Moscow"
 USE_I18N = True
 USE_TZ = True
 
@@ -171,8 +182,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
+STATIC_URL = "static/"
 # TODO: Добавить константу STATIC_ROOT к деплойменту приложения.
 
 # Default primary key field type
@@ -180,15 +190,11 @@ STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = "users.User"
-
-LOGIN_REDIRECT_URL = "tasks:home"
-LOGOUT_REDIRECT_URL = "tasks:home"
-LOGIN_URL = "users:login"
+AUTH_USER_MODEL = "users_api.User"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "users.authentication.EmailAuthBackend",
+    "users_api.authentication.EmailAuthBackend",
 ]
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -199,7 +205,6 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-# EMAIL_USE_SSL = True
 
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
