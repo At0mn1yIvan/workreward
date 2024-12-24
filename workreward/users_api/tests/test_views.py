@@ -35,6 +35,7 @@ class UserViewSetTests(APITestCase):
         """
         self.client.force_authenticate(self.manager)
         url = reverse("users_api:users_list")
+
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -49,6 +50,7 @@ class UserViewSetTests(APITestCase):
         url = reverse(
             "users_api:user_detail", kwargs={"pk": self.performer.pk}
         )
+
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -61,6 +63,7 @@ class UserViewSetTests(APITestCase):
         """
         self.client.force_authenticate(self.performer)
         url = reverse("users_api:users_list")
+
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -74,6 +77,7 @@ class UserViewSetTests(APITestCase):
         url = reverse(
             "users_api:user_detail", kwargs={"pk": self.performer.pk}
         )
+
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -275,6 +279,7 @@ class ProfileAPIViewTests(APITestCase):
             "last_name": "Name",
             "patronymic": "Middle",
         }
+
         response = self.client.put(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -286,6 +291,7 @@ class ProfileAPIViewTests(APITestCase):
     def test_patch_profile(self):
         """Тест PATCH-запроса для частичного обновления профиля."""
         data = {"first_name": "Patched"}
+
         response = self.client.patch(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -300,6 +306,7 @@ class ProfileAPIViewTests(APITestCase):
         к профилю у неавторизованного пользователя.
         """
         self.client.logout()
+
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -333,6 +340,7 @@ class ChangePasswordAPIViewTests(APITestCase):
             "new_password1": self.new_password,
             "new_password2": self.new_password,
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -348,6 +356,7 @@ class ChangePasswordAPIViewTests(APITestCase):
             "new_password1": self.new_password,
             "new_password2": self.new_password,
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -362,6 +371,7 @@ class ChangePasswordAPIViewTests(APITestCase):
             "new_password1": self.new_password,
             "new_password2": "different_password",
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -376,6 +386,7 @@ class ChangePasswordAPIViewTests(APITestCase):
             "new_password1": "KKKKK12345",
             "new_password2": "KKKKK12345",
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -395,6 +406,7 @@ class ChangePasswordAPIViewTests(APITestCase):
             "new_password1": self.new_password,
             "new_password2": self.new_password,
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -419,6 +431,7 @@ class PasswordResetRequestAPIViewTestCase(APITestCase):
     def test_password_reset_request_valid_email(self):
         """Тест запроса на сброс пароля с существующим email."""
         data = {"email": self.user.email}
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -433,6 +446,7 @@ class PasswordResetRequestAPIViewTestCase(APITestCase):
     def test_password_reset_request_invalid_email(self):
         """Тест запроса на сброс пароля с несуществующим email."""
         data = {"email": "nonexistent@example.com"}
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -472,6 +486,7 @@ class PasswordResetConfirmAPIViewTestCase(APITestCase):
             "uidb64": self.uidb64,
             "token": self.token,
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -488,6 +503,7 @@ class PasswordResetConfirmAPIViewTestCase(APITestCase):
             "uidb64": self.uidb64,
             "token": self.token,
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -501,6 +517,7 @@ class PasswordResetConfirmAPIViewTestCase(APITestCase):
             "uidb64": "invalid_uid",
             "token": self.token,
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -514,6 +531,7 @@ class PasswordResetConfirmAPIViewTestCase(APITestCase):
             "uidb64": self.uidb64,
             "token": "invalid_token",
         }
+
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

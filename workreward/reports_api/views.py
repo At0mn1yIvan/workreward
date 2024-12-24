@@ -41,13 +41,14 @@ class TaskReportViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_manager:
-            return TaskReport.objects.filter(
+            queryset = TaskReport.objects.filter(
                 task__task_creator=user
-            ).select_related("task")
+            )
         else:
-            return TaskReport.objects.filter(
+            queryset = TaskReport.objects.filter(
                 task__task_performer=user
-            ).select_related("task")
+            )
+        return queryset.select_related("task")
 
 
 class TaskReportCreateAPIView(APIView):

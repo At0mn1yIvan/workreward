@@ -37,3 +37,6 @@ class Reward(models.Model):
         blank=True,
         related_name="reward",
     )
+
+    class Meta:
+        ordering = ['-time_create']

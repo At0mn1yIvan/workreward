@@ -58,5 +58,8 @@ class Task(models.Model):
         related_name="performed_tasks",
     )
 
+    class Meta:
+        ordering = ['-time_create']
+
     def __str__(self):
         return self.title

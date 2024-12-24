@@ -52,13 +52,14 @@ class TaskViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if user.is_manager:
-            return Task.objects.filter(
+            queryset = Task.objects.filter(
                 task_creator=user
-            ).select_related("task_creator", "task_performer")
+            )
         else:
-            return Task.objects.filter(
+            queryset = Task.objects.filter(
                 task_performer__isnull=True
-            ).select_related("task_creator", "task_performer")
+            )
+        return queryset.select_related("task_creator", "task_performer")
 
 
 class UserTasksAPIView(ListAPIView):

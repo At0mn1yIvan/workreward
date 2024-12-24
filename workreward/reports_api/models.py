@@ -33,3 +33,6 @@ class TaskReport(models.Model):
         blank=True,
         related_name="report",
     )
+
+    class Meta:
+        ordering = ['-time_create']
