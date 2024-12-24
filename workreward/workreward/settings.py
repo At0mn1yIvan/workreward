@@ -27,12 +27,13 @@ environ.Env.read_env()
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
+    "http://localhost:4000",
 ]
 
 INTERNAL_IPS = [
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
     "reports_api.apps.ReportsApiConfig",
     "rewards_api.apps.RewardsApiConfig",
     "debug_toolbar",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [

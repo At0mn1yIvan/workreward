@@ -10,12 +10,15 @@ from tasks_api import serializers
 from tasks_api.models import Task
 
 
+User = get_user_model()
+
+
 class TaskSerializerTests(TestCase):
     """Тесты для сериализатора UserSerializer."""
 
     def setUp(self):
         # Создаем тестового пользователя
-        self.manager = get_user_model().objects.create_user(
+        self.manager = User.objects.create_user(
             username="testuser",
             email="testuser@example.com",
             first_name="John",
@@ -61,7 +64,7 @@ class TaskCreateSerializerTests(TestCase):
 
     def setUp(self):
         # Создаем тестовых пользователей
-        self.manager = get_user_model().objects.create_user(
+        self.manager = User.objects.create_user(
             username="manager",
             email="manager@example.com",
             first_name="John",
@@ -70,7 +73,7 @@ class TaskCreateSerializerTests(TestCase):
             password="managerpassword123",
             is_manager=True,
         )
-        self.active_performer = get_user_model().objects.create_user(
+        self.active_performer = User.objects.create_user(
             username="performer_active",
             email="performer_active@example.com",
             first_name="Jane",
@@ -80,7 +83,7 @@ class TaskCreateSerializerTests(TestCase):
             is_manager=False,
             is_active=True,
         )
-        self.inactive_performer = get_user_model().objects.create_user(
+        self.inactive_performer = User.objects.create_user(
             username="performer_inactive",
             email="performer_inactive@example.com",
             first_name="Bob",
@@ -180,7 +183,7 @@ class TaskTakeSerializerTests(TestCase):
     """Тесты для сериализатора TaskTakeSerializer."""
 
     def setUp(self):
-        self.manager = get_user_model().objects.create_user(
+        self.manager = User.objects.create_user(
             username="manager",
             email="manager@example.com",
             first_name="John",
@@ -189,7 +192,7 @@ class TaskTakeSerializerTests(TestCase):
             password="managerpassword123",
             is_manager=True,
         )
-        self.active_performer = get_user_model().objects.create_user(
+        self.active_performer = User.objects.create_user(
             username="performer_active",
             email="performer_active@example.com",
             first_name="Jane",
@@ -280,7 +283,7 @@ class TaskAssignSerializerTests(TestCase):
     """Тесты для сериализатора TaskAssignSerializer."""
 
     def setUp(self):
-        self.manager = get_user_model().objects.create_user(
+        self.manager = User.objects.create_user(
             username="manager",
             email="manager@example.com",
             first_name="John",
@@ -289,7 +292,7 @@ class TaskAssignSerializerTests(TestCase):
             password="managerpassword123",
             is_manager=True,
         )
-        self.other_manager = get_user_model().objects.create_user(
+        self.other_manager = User.objects.create_user(
             username="other_manager",
             email="other_manager@example.com",
             first_name="Alice",
@@ -298,7 +301,7 @@ class TaskAssignSerializerTests(TestCase):
             password="other_managerpassword123",
             is_manager=True,
         )
-        self.active_performer = get_user_model().objects.create_user(
+        self.active_performer = User.objects.create_user(
             username="performer_active",
             email="performer_active@example.com",
             first_name="Jane",
@@ -308,7 +311,7 @@ class TaskAssignSerializerTests(TestCase):
             is_manager=False,
             is_active=True,
         )
-        self.inactive_performer = get_user_model().objects.create_user(
+        self.inactive_performer = User.objects.create_user(
             username="performer_inactive",
             email="performer_inactive@example.com",
             first_name="Bob",
@@ -403,7 +406,7 @@ class TaskCompleteSerializerTests(TestCase):
     """Тесты для сериализатора TaskCompleteSerializer."""
 
     def setUp(self):
-        self.manager = get_user_model().objects.create_user(
+        self.manager = User.objects.create_user(
             username="manager",
             email="manager@example.com",
             first_name="John",
@@ -412,7 +415,7 @@ class TaskCompleteSerializerTests(TestCase):
             password="managerpassword123",
             is_manager=True,
         )
-        self.performer = get_user_model().objects.create_user(
+        self.performer = User.objects.create_user(
             username="performer",
             email="performer@example.com",
             first_name="Jane",
@@ -422,7 +425,7 @@ class TaskCompleteSerializerTests(TestCase):
             is_manager=False,
             is_active=True,
         )
-        self.other_performer = get_user_model().objects.create_user(
+        self.other_performer = User.objects.create_user(
             username="other_performer",
             email="other_performer@example.com",
             first_name="Bob",

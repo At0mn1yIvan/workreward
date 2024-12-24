@@ -11,6 +11,8 @@ from .utils import send_password_reset_link
 from . import serializers
 from .renderers import UserJSONRenderer
 
+User = get_user_model()
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -33,7 +35,7 @@ class UserViewSet(viewsets.ModelViewSet):
         для результатов запроса.
     """
 
-    queryset = get_user_model().objects.all()
+    queryset = User.objects.all()
     permission_classes = (IsManager,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = serializers.UserSerializer

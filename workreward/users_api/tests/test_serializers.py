@@ -9,11 +9,14 @@ from users_api import serializers
 from users_api.models import ManagerCode
 
 
+User = get_user_model()
+
+
 class UserSerializerTestCase(TestCase):
     """Тесты для сериализатора UserSerializer."""
 
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
+        self.user = User.objects.create_user(
             username="testuser",
             email="testuser@example.com",
             first_name="John",
@@ -41,7 +44,7 @@ class LoginUserSerializerTestCase(TestCase):
     """Тесты для сериализатора LoginUserSerializer."""
 
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
+        self.user = User.objects.create_user(
             username="testuser",
             email="testuser@example.com",
             first_name="John",
@@ -109,7 +112,7 @@ class RegisterUserSerializerTestCase(TestCase):
     """Тесты для сериализатора RegisterUserSerializer."""
 
     def setUp(self):
-        self.existing_user = get_user_model().objects.create_user(
+        self.existing_user = User.objects.create_user(
             username="existinguser",
             email="existinguser@example.com",
             first_name="John",
@@ -243,7 +246,7 @@ class ProfileUserSerializerTest(TestCase):
     """Тесты для сериализатора ProfileUserSerializer."""
 
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
+        self.user = User.objects.create_user(
             username="testuser",
             email="testuser@example.com",
             first_name="Test",
@@ -321,7 +324,7 @@ class ProfileUserSerializerTest(TestCase):
 class UserPasswordChangeSerializerTests(TestCase):
     def setUp(self):
         """Создаем пользователя для тестов."""
-        self.user = get_user_model().objects.create_user(
+        self.user = User.objects.create_user(
             username="existinguser",
             email="existinguser@example.com",
             first_name="John",
@@ -413,7 +416,7 @@ class UserPasswordChangeSerializerTests(TestCase):
 class UserPasswordResetRequestSerializerTests(TestCase):
     def setUp(self):
         """Создаем пользователей для тестов."""
-        self.existing_user = get_user_model().objects.create_user(
+        self.existing_user = User.objects.create_user(
             username="existinguser",
             email="existinguser@example.com",
             first_name="John",
@@ -453,7 +456,7 @@ class UserPasswordResetRequestSerializerTests(TestCase):
 class UserPasswordResetConfirmSerializerTests(TestCase):
     def setUp(self):
         """Создаем пользователя для тестов и генерируем токен."""
-        self.user = get_user_model().objects.create_user(
+        self.user = User.objects.create_user(
             username="existinguser",
             email="existinguser@example.com",
             first_name="John",

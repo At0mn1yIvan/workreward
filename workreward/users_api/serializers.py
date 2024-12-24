@@ -7,6 +7,9 @@ from rest_framework import serializers
 from .models import ManagerCode
 
 
+User = get_user_model()
+
+
 class UserSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели пользователя.
@@ -18,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = (
             "id",
             "username",
@@ -127,7 +130,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
     manager_code = serializers.CharField(write_only=True, required=False)
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = (
             "username",
             "email",
@@ -148,7 +151,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         errors = {}
-        if get_user_model().objects.filter(email=data["email"]).exists():
+        if User.objects.filter(email=data["email"]).exists():
             errors["email"] = ["Такой E-mail уже существует."]
 
         if data["password"] != data["password2"]:
@@ -175,14 +178,14 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         patronymic = validated_data.get("patronymic", None)
         code = validated_data.get("manager_code_instance", None)
 
-        user = get_user_model().objects.create(
+        user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
             patronymic=patronymic,
+            password=validated_data["password"],
         )
-        user.set_password(validated_data.get("password"))
 
         if code:
             user.is_manager = True
@@ -225,7 +228,7 @@ class ProfileUserSerializer(serializers.ModelSerializer):
     """
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = (
             "username",
             "email",
@@ -348,12 +351,11 @@ class UserPasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=254, required=True)
 
     def validate(self, data):
-        user_model = get_user_model()
         user = None
 
         try:
-            user = user_model.objects.get(email=data["email"])
-        except user_model.DoesNotExist:
+            user = User.objects.get(email=data["email"])
+        except User.DoesNotExist:
             raise serializers.ValidationError(
                 {"detail": "Пользователя с таким E-mail не существует."}
             )
@@ -407,14 +409,13 @@ class UserPasswordResetConfirmSerializer(serializers.Serializer):
                 {"new_password2": "Пароли не совпадают."}
             )
 
-        user_model = get_user_model()
         user = None
 
         try:
             uid = urlsafe_base64_decode(data["uidb64"]).decode()
-            user = user_model.objects.get(pk=uid)
+            user = User.objects.get(pk=uid)
 
-        except (user_model.DoesNotExist, ValueError, TypeError):
+        except (User.DoesNotExist, ValueError, TypeError):
             raise serializers.ValidationError({"uidb64": "Неверная ссылка."})
 
         if not default_token_generator.check_token(user, data["token"]):

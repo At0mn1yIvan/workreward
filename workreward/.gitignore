@@ -8,14 +8,15 @@ __pycache__/
 # Файлы конфигурации для venv
 venv/
 djarch/
+djvenv/
 # Файлы дистрибутивов и артефакты упаковки
 dist/
 *.egg-info/
 
 # Файлы покрытия, кэши и прочие ненужные файлы
 .coverage
-*.py,cover
 .cache/
+.pytest_cache
 
 # Файлы *.py,cover не несут никакого смысла
 *.py,cover
