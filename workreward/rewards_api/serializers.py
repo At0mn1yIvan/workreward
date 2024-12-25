@@ -106,4 +106,7 @@ class RewardCreateSerializer(serializers.ModelSerializer):
             task_report=report,
         )
 
+        report.is_awarded = True
+        report.save(update_fields=["is_awarded"])
+
         return reward

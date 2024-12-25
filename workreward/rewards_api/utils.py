@@ -30,7 +30,7 @@ def send_reward_notification(reward_pk: int, request: HttpRequest) -> None:
 
     subject = "Уведомление о получении премии."
     message = (
-        f"Менеджер {manager.get_full_name()} назначил вам премию в {reward.reward_sum} рублей за задачу '{task.title}'.\n\n"
+        f"Менеджер {manager.get_full_name()} назначил вам премию в {reward.reward_sum} единиц за задачу '{task.title}'.\n\n"
         f"Комментарий менеджера: {reward.comment}"
     )
 
