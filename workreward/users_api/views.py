@@ -244,7 +244,7 @@ class PasswordResetRequestAPIView(APIView):
 
         user = serializer.validated_data["user_obj"]
         email = serializer.validated_data["email"]
-        
+
         send_password_reset_link(user, email, request)
         # try:
         #     send_password_reset_link(user, email, request)
