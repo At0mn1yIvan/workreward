@@ -85,13 +85,15 @@ class TaskReportCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         task_report = serializer.save()
 
-        try:
-            send_report_done_notification(task_report.pk, request)
-        except Exception as e:
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        send_report_done_notification(task_report.pk, request)
+
+        # try:
+        #     send_report_done_notification(task_report.pk, request)
+        # except Exception as e:
+        #     return Response(
+        #         {"detail": str(e)},
+        #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #     )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

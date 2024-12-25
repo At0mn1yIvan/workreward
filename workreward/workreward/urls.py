@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -29,3 +30,7 @@ urlpatterns = [
         "api/v1/rewards/", include("rewards_api.urls", namespace="rewards_api")
     ),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += (path('__debug__/', include(debug_toolbar.urls)),)

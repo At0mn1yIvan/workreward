@@ -73,36 +73,37 @@ def send_report_done_notification(task_report_pk: int, request: HttpRequest) -> 
         для которого отправляется уведомление.
         - request (HttpRequest): Объект запроса, содержащий информацию
         о текущем пользователе (менеджере) и домене сайта.
-
-    Исключения:
-        Exception: Если возникает ошибка при отправке письма,
-        будет поднято исключение с подробным сообщением.
     """
     task_report = TaskReport.objects.select_related(
         "task", "task__task_creator"
     ).get(pk=task_report_pk)
     task_performer = request.user
     manager = task_report.task.task_creator
-    report_url = request.build_absolute_uri(
-        reverse("reports_api:report_detail", kwargs={"pk": task_report.pk})
-    )
+    my_reports_url = request.build_absolute_uri("/reports")
     subject = "Уведомление о завершении задачи. Отчёт оформлен."
     message = (
         f"Исполнитель {task_performer.get_full_name()} завершил задачу '{task_report.task.title}' и создал отчёт.\n"
-        f"Посмотреть отчёт: {report_url}"
+        f"Отчёты по созданным вами задачам: {my_reports_url}"
     )
-    try:
-        send_email(
-            subject=subject,
-            message=message,
-            recipient_list=[manager.email],
-        )
-    except Exception as e:
-        error_message = (
-            f"Ошибка при отправке уведомления: {str(e)}\n"
-            "Возможно, менеджер указал несуществующую почту."
-        )
-        raise Exception(error_message)
+
+    send_email(
+        subject=subject,
+        message=message,
+        recipient_list=[manager.email],
+    )
+
+    # try:
+    #     send_email(
+    #         subject=subject,
+    #         message=message,
+    #         recipient_list=[manager.email],
+    #     )
+    # except Exception as e:
+    #     error_message = (
+    #         f"Ошибка при отправке уведомления: {str(e)}\n"
+    #         "Возможно, менеджер указал несуществующую почту."
+    #     )
+    #     raise Exception(error_message)
 
 
 class ReportGenerator:

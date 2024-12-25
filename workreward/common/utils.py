@@ -11,7 +11,8 @@ def send_email(
     """
         Переопределенная функция отправки электронного письма.
     """
-    try:
-        send_mail(subject, message, from_email, recipient_list)
-    except Exception as e:
-        raise Exception(f"Ошибка при отправке письма: {str(e)}")
+    send_mail(subject, message, from_email, recipient_list)
+    # try:
+    #     send_mail(subject, message, from_email, recipient_list)
+    # except Exception as e:
+    #     raise Exception(f"Ошибка при отправке письма: {str(e)}")
