@@ -2,6 +2,9 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 
+User = get_user_model()
+
+
 class Task(models.Model):
     """
     Модель задачи.
@@ -41,19 +44,22 @@ class Task(models.Model):
     time_completion = models.DateTimeField(null=True, blank=True)
     time_start = models.DateTimeField(null=True, blank=True)
     task_creator = models.ForeignKey(
-        get_user_model(),
+        User,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="created_tasks",
     )
     task_performer = models.ForeignKey(
-        get_user_model(),
+        User,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="performed_tasks",
     )
+
+    class Meta:
+        ordering = ['-time_create']
 
     def __str__(self):
         return self.title

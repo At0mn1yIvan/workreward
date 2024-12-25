@@ -41,13 +41,14 @@ class TaskReportViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_manager:
-            return TaskReport.objects.filter(
+            queryset = TaskReport.objects.filter(
                 task__task_creator=user
-            ).select_related("task")
+            )
         else:
-            return TaskReport.objects.filter(
+            queryset = TaskReport.objects.filter(
                 task__task_performer=user
-            ).select_related("task")
+            )
+        return queryset.select_related("task")
 
 
 class TaskReportCreateAPIView(APIView):
@@ -84,13 +85,15 @@ class TaskReportCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         task_report = serializer.save()
 
-        try:
-            send_report_done_notification(task_report.pk, request)
-        except Exception as e:
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        send_report_done_notification(task_report.pk, request)
+
+        # try:
+        #     send_report_done_notification(task_report.pk, request)
+        # except Exception as e:
+        #     return Response(
+        #         {"detail": str(e)},
+        #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #     )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

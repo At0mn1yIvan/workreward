@@ -11,6 +11,8 @@ from .utils import send_password_reset_link
 from . import serializers
 from .renderers import UserJSONRenderer
 
+User = get_user_model()
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -33,7 +35,7 @@ class UserViewSet(viewsets.ModelViewSet):
         для результатов запроса.
     """
 
-    queryset = get_user_model().objects.all()
+    queryset = User.objects.all()
     permission_classes = (IsManager,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = serializers.UserSerializer
@@ -242,13 +244,15 @@ class PasswordResetRequestAPIView(APIView):
 
         user = serializer.validated_data["user_obj"]
         email = serializer.validated_data["email"]
-        try:
-            send_password_reset_link(user, email, request)
-        except Exception as e:
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+
+        send_password_reset_link(user, email, request)
+        # try:
+        #     send_password_reset_link(user, email, request)
+        # except Exception as e:
+        #     return Response(
+        #         {"detail": str(e)},
+        #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #     )
 
         return Response(
             {"message": "Письмо для сброса пароля отправлено на почту."},

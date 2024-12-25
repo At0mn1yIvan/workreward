@@ -97,12 +97,14 @@ class RewardCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         reward = serializer.save()
 
-        try:
-            send_reward_notification(reward.pk, request)
-        except Exception as e:
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        send_reward_notification(reward.pk, request)
+
+        # try:
+        #     send_reward_notification(reward.pk, request)
+        # except Exception as e:
+        #     return Response(
+        #         {"detail": str(e)},
+        #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #     )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)

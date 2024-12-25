@@ -18,6 +18,9 @@ class TaskReport(models.Model):
         если не установлена.
         - time_create (DateTimeField): Время создания отчёта.
         Заполняется автоматически при добавлении объекта отчёта.
+        - is_awarded (BooleanField): Поле, указывающее, выдана ли
+        премия за данную выполненную задачу. Не может быть пустым,
+        значение по умолчанию - False.
         - task (OneToOneField): Связь с задачей.
         Один отчёт может быть привязан только к одной задаче.
         Может быть пустым (null), если задача не указана или удалена.
@@ -26,6 +29,7 @@ class TaskReport(models.Model):
     text = models.TextField(null=False, blank=False)
     efficiency_score = models.FloatField(null=False, blank=False)
     time_create = models.DateTimeField(auto_now_add=True)
+    is_awarded = models.BooleanField(default=False, null=False, blank=False)
     task = models.OneToOneField(
         Task,
         on_delete=models.SET_NULL,
@@ -33,3 +37,6 @@ class TaskReport(models.Model):
         blank=True,
         related_name="report",
     )
+
+    class Meta:
+        ordering = ['-time_create']

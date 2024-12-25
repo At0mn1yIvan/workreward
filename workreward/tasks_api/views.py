@@ -52,13 +52,14 @@ class TaskViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if user.is_manager:
-            return Task.objects.filter(
+            queryset = Task.objects.filter(
                 task_creator=user
-            ).select_related("task_creator", "task_performer")
+            )
         else:
-            return Task.objects.filter(
+            queryset = Task.objects.filter(
                 task_performer__isnull=True
-            ).select_related("task_creator", "task_performer")
+            )
+        return queryset.select_related("task_creator", "task_performer")
 
 
 class UserTasksAPIView(ListAPIView):
@@ -135,13 +136,15 @@ class TaskCreateAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         task = serializer.save()
 
-        try:
-            send_task_assign_notification(task.pk, request)
-        except Exception as e:
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        send_task_assign_notification(task.pk, request)
+
+        # try:
+        #     send_task_assign_notification(task.pk, request)
+        # except Exception as e:
+        #     return Response(
+        #         {"detail": str(e)},
+        #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #     )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -227,13 +230,15 @@ class TaskAssignAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         task_assigned = serializer.save()
 
-        try:
-            send_task_assign_notification(task_assigned.pk, request)
-        except Exception as e:
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        send_task_assign_notification(task_assigned.pk, request)
+
+        # try:
+        #     send_task_assign_notification(task_assigned.pk, request)
+        # except Exception as e:
+        #     return Response(
+        #         {"detail": str(e)},
+        #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #     )
 
         return Response(
             {

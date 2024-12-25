@@ -79,7 +79,7 @@ class RewardCreateSerializer(serializers.ModelSerializer):
                 {"detail": "Вы не являетесь создателем данной задачи."}
             )
 
-        if Reward.objects.filter(task_report=report).exists():
+        if report.is_awarded:
             raise serializers.ValidationError(
                 {"detail": "Премия за эту задачу уже выдана."}
             )
@@ -105,5 +105,8 @@ class RewardCreateSerializer(serializers.ModelSerializer):
             time_create=timezone.localtime(timezone.now()),
             task_report=report,
         )
+
+        report.is_awarded = True
+        report.save(update_fields=["is_awarded"])
 
         return reward

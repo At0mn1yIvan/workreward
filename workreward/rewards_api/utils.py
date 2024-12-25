@@ -19,10 +19,6 @@ def send_reward_notification(reward_pk: int, request: HttpRequest) -> None:
         на которую назначается исполнитель.
         - request (HttpRequest): Объект запроса, содержащий информацию
         о текущем пользователе (менеджере) и домене сайта.
-
-    Исключения:
-        Exception: Если возникает ошибка при отправке письма,
-        будет поднято исключение с подробным сообщением.
     """
     reward = Reward.objects.select_related(
         "task_report", "task_report__task", "task_report__task__task_performer"
@@ -34,18 +30,28 @@ def send_reward_notification(reward_pk: int, request: HttpRequest) -> None:
 
     subject = "Уведомление о получении премии."
     message = (
-        f"Менеджер {manager.get_full_name()} назначил вам премию в {reward.reward_sum} рублей за задачу '{task.title}'.\n\n"
+        f"Менеджер {manager.get_full_name()} назначил вам премию в {reward.reward_sum} единиц за задачу '{task.title}'.\n\n"
         f"Комментарий менеджера: {reward.comment}"
     )
+
     try:
         send_email(
             subject=subject,
             message=message,
             recipient_list=[task_performer.email],
         )
-    except Exception as e:
-        error_message = (
-            f"Ошибка при отправке уведомления: {str(e)}\n"
-            "Возможно, исполнитель указал несуществующую почту."
-        )
-        raise Exception(error_message)
+    except Exception:
+        pass
+
+    # try:
+    #     send_email(
+    #         subject=subject,
+    #         message=message,
+    #         recipient_list=[task_performer.email],
+    #     )
+    # except Exception as e:
+    #     error_message = (
+    #         f"Ошибка при отправке уведомления: {str(e)}\n"
+    #         "Возможно, исполнитель указал несуществующую почту."
+    #     )
+    #     raise Exception(error_message)

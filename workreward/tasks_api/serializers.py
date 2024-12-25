@@ -5,6 +5,8 @@ from rest_framework import serializers
 
 from .models import Task
 
+User = get_user_model()
+
 
 class TaskSerializer(serializers.ModelSerializer):
     """
@@ -105,7 +107,7 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     """
 
     task_performer = serializers.PrimaryKeyRelatedField(
-        queryset=get_user_model().objects.filter(is_manager=False),
+        queryset=User.objects.filter(is_manager=False),
         required=False,
         allow_null=False,
     )
@@ -241,7 +243,7 @@ class TaskAssignSerializer(serializers.ModelSerializer):
     """
 
     task_performer = serializers.PrimaryKeyRelatedField(
-        queryset=get_user_model().objects.filter(is_manager=False),
+        queryset=User.objects.filter(is_manager=False),
         required=True,
         allow_null=False,
     )
