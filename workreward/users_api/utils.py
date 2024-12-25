@@ -32,12 +32,14 @@ def send_password_reset_link(user: User, email: str, request: HttpRequest) -> No
         f"Перейдите по ссылке, чтобы сбросить ваш пароль: {reset_link}"
     )
 
-    send_email(
-        subject=subject,
-        message=message,
-        recipient_list=[email],
-    )
-
+    try:
+        send_email(
+            subject=subject,
+            message=message,
+            recipient_list=[email],
+        )
+    except Exception:
+        pass
     # try:
     #     send_email(
     #         subject=subject,

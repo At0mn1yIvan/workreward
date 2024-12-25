@@ -33,11 +33,14 @@ def send_task_assign_notification(task_pk: int, request: HttpRequest) -> None:
         f"Список ваших задач: {my_tasks_url}"
     )
 
-    send_email(
-        subject=subject,
-        message=message,
-        recipient_list=[task_performer.email],
-    )
+    try:
+        send_email(
+            subject=subject,
+            message=message,
+            recipient_list=[task_performer.email],
+        )
+    except Exception:
+        pass
 
     # try:
     #     send_email(

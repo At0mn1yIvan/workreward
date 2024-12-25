@@ -86,24 +86,14 @@ def send_report_done_notification(task_report_pk: int, request: HttpRequest) -> 
         f"Отчёты по созданным вами задачам: {my_reports_url}"
     )
 
-    send_email(
-        subject=subject,
-        message=message,
-        recipient_list=[manager.email],
-    )
-
-    # try:
-    #     send_email(
-    #         subject=subject,
-    #         message=message,
-    #         recipient_list=[manager.email],
-    #     )
-    # except Exception as e:
-    #     error_message = (
-    #         f"Ошибка при отправке уведомления: {str(e)}\n"
-    #         "Возможно, менеджер указал несуществующую почту."
-    #     )
-    #     raise Exception(error_message)
+    try:
+        send_email(
+            subject=subject,
+            message=message,
+            recipient_list=[manager.email],
+        )
+    except Exception:
+        pass
 
 
 class ReportGenerator:

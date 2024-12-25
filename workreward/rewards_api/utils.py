@@ -34,11 +34,14 @@ def send_reward_notification(reward_pk: int, request: HttpRequest) -> None:
         f"Комментарий менеджера: {reward.comment}"
     )
 
-    send_email(
-        subject=subject,
-        message=message,
-        recipient_list=[task_performer.email],
-    )
+    try:
+        send_email(
+            subject=subject,
+            message=message,
+            recipient_list=[task_performer.email],
+        )
+    except Exception:
+        pass
 
     # try:
     #     send_email(
